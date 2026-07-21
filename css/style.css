@@ -1,0 +1,851 @@
+/* =============================================================================
+   STYLE.CSS — Portfolio de Sara Agbehonou
+   Thème visuel "Pixel / Minecraft" : police pixelisée, panneaux façon
+   interface de jeu (GUI), boutons en relief 3D (bordures claires/foncées),
+   cubes isométriques décoratifs, barres de compétences façon barre XP.
+   Le fichier est organisé section par section, dans le même ordre que les
+   sections HTML de porte_fo.php pour être facile à suivre.
+   ============================================================================= */
+
+/* Déclare la police "Pixel" en s'appuyant sur la police Google Fonts
+   "Press Start 2P" déjà chargée dans le <head> de porte_fo.php. */
+@font-face {
+  font-family: "Pixel";
+  src: local("Press Start 2P");
+}
+
+/* -----------------------------------------------------------------------
+   VARIABLES CSS GLOBALES (custom properties)
+   Centralise toutes les couleurs et polices ici : un seul endroit à modifier
+   si on veut changer la palette du thème.
+   ----------------------------------------------------------------------- */
+:root {
+  --grass-green: #5d9c3f;        /* Vert herbe Minecraft (boutons, accents) */
+  --grass-green-dark: #3f6e2a;   /* Vert herbe foncé (survols, titres) */
+  --dirt-brown: #8a5a3b;         /* Marron terre (non utilisé directement, réservé) */
+  --dirt-brown-dark: #6b4429;    /* Marron terre foncé (face des cubes décoratifs) */
+  --stone-grey: #8a8a8a;         /* Gris pierre (boutons secondaires) */
+  --stone-grey-dark: #5a5a5a;    /* Gris pierre foncé (étiquettes/tags) */
+  --sky-day: #7ec0ee;            /* Bleu ciel (réservé, non utilisé actuellement) */
+  --sky-night: #1a1a3d;          /* Bleu nuit (haut du dégradé de fond) */
+  --panel-bg: #c6c6c6;           /* Fond gris clair des panneaux type GUI */
+  --panel-border-light: #ffffff; /* Bordure claire (effet de relief "en haut/à gauche") */
+  --panel-border-dark: #555555;  /* Bordure foncée (effet de relief "en bas/à droite") */
+  --panel-inner: #313131;        /* Contour extérieur sombre des panneaux */
+  --text-light: #f5f5f5;         /* Texte clair (sur fonds sombres) */
+  --text-dark: #2b2b2b;          /* Texte sombre (sur les panneaux gris clair) */
+  --accent-diamond: #5fe0e0;     /* Cyan "diamant" (barres XP) */
+  --accent-gold: #f6c945;        /* Jaune "or" (titres, survols) */
+  --accent-redstone: #d3352b;    /* Rouge "redstone" (erreurs, bouton fermer) */
+  --font-pixel: "Press Start 2P", "VT323", monospace; /* Police pixel avec repli (fallback) monospace */
+}
+
+/* -----------------------------------------------------------------------
+   RESET DE BASE
+   Supprime les marges/paddings par défaut du navigateur pour repartir d'une
+   base propre, et force box-sizing:border-box pour que padding/border ne
+   s'ajoutent pas à la largeur définie (plus simple à calculer).
+   ----------------------------------------------------------------------- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  /* image-rendering: pixelated -> évite le flou d'agrandissement sur les
+     petits éléments décoratifs (garde l'esprit "pixel art"). On le
+     surcharge plus bas pour les vraies captures d'écran (lightbox), qui
+     doivent au contraire rester nettes. */
+  image-rendering: pixelated;
+}
+
+html {
+  scroll-behavior: smooth; /* Défilement doux quand on clique sur un lien #ancre du menu */
+}
+
+body {
+  font-family: var(--font-pixel);
+  font-size: 12px;
+  line-height: 1.8; /* Interligne généreux : la police pixel est dense et peu lisible sinon */
+  color: var(--text-light);
+  /* Dégradé de fond fixe : nuit en haut -> bleu -> vert en bas, façon paysage Minecraft au loin */
+  background: linear-gradient(180deg, var(--sky-night) 0%, #2b2b52 45%, #3a5f3a 100%);
+  background-attachment: fixed; /* Le fond ne bouge pas quand on scrolle (effet de profondeur) */
+  min-height: 100vh;
+}
+
+img {
+  max-width: 100%; /* Empêche une image de dépasser son conteneur */
+}
+
+a {
+  color: inherit; /* Les liens héritent de la couleur du texte parent (pas de bleu par défaut) */
+  text-decoration: none;
+}
+
+ul {
+  list-style: none; /* Retire les puces par défaut des listes à puces */
+}
+
+/* Conteneur central classique : largeur max 1100px, mais jamais plus de 92%
+   de l'écran (marge de respiration sur mobile). */
+.container {
+  width: min(1100px, 92%);
+  margin: 0 auto;
+}
+
+/* =============================================================================
+   PANNEAU "PIXEL" (look interface Minecraft)
+   Classe réutilisée partout (À propos, Compétences, Projets, Contact...).
+   L'effet de relief 3D vient du border-color à 4 valeurs : la première est
+   pour le haut, la 2e pour la droite, la 3e pour le bas, la 4e pour la
+   gauche. Ici : clair en haut/gauche + foncé en bas/droite = effet "bouton
+   qui ressort" (comme les fenêtres classiques de jeux rétro).
+   ============================================================================= */
+.pixel-panel {
+  background: var(--panel-bg);
+  color: var(--text-dark);
+  border: 4px solid;
+  border-color: var(--panel-border-light) var(--panel-border-dark) var(--panel-border-dark)
+    var(--panel-border-light);
+  box-shadow: 0 0 0 4px var(--panel-inner); /* Contour sombre supplémentaire tout autour */
+  padding: 1.5rem;
+}
+
+/* =============================================================================
+   BOUTONS façon bouton Minecraft (relief 3D + effet d'enfoncement au clic)
+   ============================================================================= */
+.btn {
+  display: inline-block;
+  font-family: var(--font-pixel);
+  font-size: 11px;
+  color: var(--text-light);
+  background: #6b6b6b;
+  border: 3px solid;
+  /* Même principe de relief que .pixel-panel : clair en haut/gauche, foncé en bas/droite */
+  border-color: #a0a0a0 #2f2f2f #2f2f2f #a0a0a0;
+  padding: 0.9rem 1.4rem;
+  cursor: pointer;
+  text-shadow: 2px 2px 0 #000; /* Ombre portée nette (sans flou) façon texte de jeu rétro */
+  transition: transform 0.05s ease, background 0.15s ease;
+}
+
+.btn:hover {
+  background: var(--grass-green);
+  transform: translateY(-2px); /* Le bouton "flotte" légèrement au survol */
+}
+
+.btn:active {
+  transform: translateY(1px); /* Le bouton s'enfonce légèrement au clic */
+  border-color: #2f2f2f #a0a0a0 #a0a0a0 #2f2f2f; /* Bordures inversées = effet "pressé" */
+}
+
+.btn-primary {
+  background: var(--grass-green-dark); /* Variante verte pour les actions principales */
+}
+
+.btn-primary:hover {
+  background: var(--grass-green);
+}
+
+/* =============================================================================
+   NAVBAR — barre de navigation façon "hotbar" Minecraft (fixée en haut)
+   ============================================================================= */
+.navbar {
+  position: sticky; /* Reste collée en haut de l'écran même en scrollant */
+  top: 0;
+  z-index: 100; /* Passe au-dessus du reste du contenu */
+  background: #2b2b2b;
+  border-bottom: 4px solid #000;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.4); /* Petite ombre nette sous la barre */
+}
+
+.navbar .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Logo à gauche, liens à droite */
+  padding: 0.8rem 0;
+}
+
+.logo {
+  font-size: 13px;
+  color: var(--accent-gold);
+  text-shadow: 2px 2px 0 #000;
+}
+
+.nav-links {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Chaque lien du menu ressemble à un "slot" d'inventaire Minecraft */
+.nav-links a {
+  display: block;
+  padding: 0.6rem 0.8rem;
+  background: #3a3a3a;
+  border: 2px solid;
+  border-color: #5a5a5a #1a1a1a #1a1a1a #5a5a5a;
+  font-size: 10px;
+  color: var(--text-light);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+/* .active est ajoutée/retirée dynamiquement par script.js selon la section
+   actuellement visible à l'écran (voir l'IntersectionObserver dans script.js) */
+.nav-links a:hover,
+.nav-links a.active {
+  background: var(--grass-green-dark);
+  color: #fff;
+}
+
+/* Bouton "hamburger" (☰) : caché par défaut, affiché seulement en mobile
+   via la media query tout en bas du fichier */
+.nav-toggle {
+  display: none;
+  background: #3a3a3a;
+  border: 2px solid #5a5a5a;
+  color: #fff;
+  font-family: var(--font-pixel);
+  padding: 0.5rem 0.7rem;
+  cursor: pointer;
+}
+
+/* =============================================================================
+   HERO — section d'accueil en haut de page
+   ============================================================================= */
+.hero {
+  position: relative; /* Nécessaire pour que .cube-field (position:absolute) se positionne par rapport au hero */
+  padding: 5rem 0 4rem;
+  text-align: center;
+  overflow: hidden; /* Empêche les cubes décoratifs de déborder hors de la section */
+}
+
+.hero-title {
+  /* clamp(min, valeur-idéale, max) = taille fluide qui s'adapte à l'écran
+     sans jamais descendre sous 20px ni dépasser 34px */
+  font-size: clamp(20px, 4vw, 34px);
+  color: var(--accent-gold);
+  text-shadow: 3px 3px 0 #000;
+  margin-bottom: 1.2rem;
+}
+
+.hero-subtitle {
+  font-size: 13px;
+  color: var(--text-light);
+  text-shadow: 2px 2px 0 #000;
+  margin-bottom: 2rem;
+}
+
+/* Sous-titre secondaire (mention "recherche d'alternance"), plus petit et
+   dans la couleur "diamant" pour se distinguer du sous-titre principal */
+.hero-subtitle--small {
+  font-size: 11px;
+  color: var(--accent-diamond);
+  margin-top: -1.2rem; /* Rapproche ce sous-titre du précédent (moins d'espace vide) */
+  margin-bottom: 2rem;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap; /* Les boutons passent à la ligne sur petit écran */
+}
+
+/* Ligne de boutons séparée pour les téléchargements de CV, avec un peu
+   d'espace au-dessus pour la distinguer des boutons d'action principaux */
+.hero-actions--cv {
+  margin-top: 1.2rem;
+}
+
+.btn-cv {
+  font-size: 10px;
+  background: #3a3a3a;
+  border-color: #7a7a7a #1a1a1a #1a1a1a #7a7a7a;
+}
+
+.btn-cv:hover {
+  background: var(--accent-gold);
+  color: var(--text-dark);
+}
+
+/* -----------------------------------------------------------------------
+   CUBES ISOMÉTRIQUES DÉCORATIFS (façon blocs Minecraft flottants)
+   Technique : un cube = 3 faces (top/left/right) obtenues avec des
+   transformations CSS (skew = inclinaison, scaleY = aplatissement) sur un
+   simple <div>, sans aucune image. Chaque face a une couleur différente
+   pour simuler l'éclairage (dessus plus clair, côtés plus sombres).
+   ----------------------------------------------------------------------- */
+.cube-field {
+  position: absolute;
+  inset: 0; /* Raccourci pour top:0; right:0; bottom:0; left:0; */
+  pointer-events: none; /* Les cubes ne bloquent pas les clics sur les boutons en dessous */
+  overflow: hidden;
+}
+
+.cube {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  transform-style: preserve-3d;
+  animation: float 6s ease-in-out infinite; /* Flottement vertical continu, voir @keyframes float */
+}
+
+.cube .face {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+}
+
+/* Face du dessus : pivotée à 180°, inclinée (skew) et aplatie (scaleY)
+   pour donner l'illusion de perspective isométrique */
+.cube .top {
+  background: var(--grass-green);
+  transform: rotate(180deg) skewX(-30deg) scaleY(0.864);
+  top: -30px;
+  left: 15px;
+}
+
+/* Face gauche : inclinée vers le bas */
+.cube .left {
+  background: var(--grass-green-dark);
+  transform: skewY(30deg);
+  top: 15px;
+  left: -30px;
+}
+
+/* Face droite : inclinée vers le haut (symétrique de la face gauche) */
+.cube .right {
+  background: var(--dirt-brown-dark);
+  transform: skewY(-30deg);
+  top: 15px;
+  left: 30px;
+}
+
+/* Positionnement + délai d'animation différent pour chacun des 4 cubes,
+   afin qu'ils ne flottent pas tous exactement en même temps (plus naturel) */
+.cube--1 {
+  top: 8%;
+  left: 6%;
+  animation-delay: 0s;
+}
+.cube--2 {
+  top: 60%;
+  left: 85%;
+  animation-delay: 1.5s;
+}
+.cube--3 {
+  top: 20%;
+  left: 80%;
+  animation-delay: 3s;
+  transform: scale(0.6); /* Cube plus petit, donne une impression de profondeur/distance */
+}
+.cube--4 {
+  top: 75%;
+  left: 10%;
+  animation-delay: 2s;
+  transform: scale(0.7);
+}
+
+/* Animation de flottement : monte de 14px puis redescend, en boucle infinie */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+/* =============================================================================
+   SECTIONS GÉNÉRIQUES (espacement commun + titres de section)
+   ============================================================================= */
+section {
+  padding: 4rem 0; /* Espacement vertical uniforme entre toutes les sections */
+}
+
+.section-title {
+  font-size: 18px;
+  text-align: center;
+  color: var(--accent-gold);
+  text-shadow: 3px 3px 0 #000;
+  margin-bottom: 2.5rem;
+}
+
+/* Petit curseur/barre décorative façon "terminal" avant chaque titre de section */
+.section-title::before {
+  content: "▍ ";
+}
+
+/* =============================================================================
+   SECTION "À PROPOS"
+   ============================================================================= */
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  align-items: center;
+}
+
+.about-text p {
+  margin-bottom: 1rem;
+  font-size: 12px;
+}
+
+/* Étiquettes de "soft skills" en bas de la section À propos (réutilise le style .tag) */
+.about-tags {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
+}
+
+/* =============================================================================
+   TIMELINE (utilisée pour la section "Formation", façon frise chronologique)
+   ============================================================================= */
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Chaque entrée de la frise a une bordure verte à gauche façon ligne de temps */
+.timeline-item {
+  border-left: 4px solid var(--grass-green-dark);
+  padding-left: 1rem;
+}
+
+.timeline-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between; /* Nom de l'établissement à gauche, période à droite */
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 11px;
+}
+
+.timeline-period {
+  color: #555;
+  font-size: 10px;
+}
+
+.timeline-item p {
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+/* =============================================================================
+   SECTION "COMPÉTENCES"
+   ============================================================================= */
+
+/* Un panneau .pixel-panel par catégorie (Front-end, Back-end, ...), voir la
+   boucle PHP "foreach ($skillCategories as $category => $skills)" */
+.skills-category {
+  margin-bottom: 1.5rem;
+}
+
+.skills-category-title {
+  font-size: 12px;
+  color: var(--grass-green-dark);
+  margin-bottom: 1rem;
+}
+
+/* Grille responsive : autant de colonnes de 220px minimum que la largeur le permet */
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.2rem;
+}
+
+.skill-slot {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.skill-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 11px;
+}
+
+/* Icône (emoji) affichée dans un petit "slot" carré façon inventaire Minecraft */
+.skill-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  background: var(--panel-inner);
+  border: 2px solid;
+  border-color: #7a7a7a #1a1a1a #1a1a1a #7a7a7a;
+}
+
+/* Barre "XP" façon jeu vidéo : fond noir + remplissage dont la largeur en %
+   est définie directement en HTML par PHP (style="width: X%") */
+.xp-bar {
+  width: 100%;
+  height: 14px;
+  background: #1a1a1a;
+  border: 2px solid #000;
+  padding: 2px;
+}
+
+/* Rayures diagonales façon barre d'expérience de jeu vidéo, obtenues avec un
+   dégradé répété en alternance de 2 teintes de cyan */
+.xp-bar-fill {
+  height: 100%;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--accent-diamond),
+    var(--accent-diamond) 6px,
+    #3fb8b8 6px,
+    #3fb8b8 12px
+  );
+}
+
+/* =============================================================================
+   SECTION "PROJETS"
+   ============================================================================= */
+
+/* Sous-titre de chaque bloc de projets ("💻 Développement" / "🖧 Systèmes & Réseau") */
+.projects-subtitle {
+  font-size: 13px;
+  color: var(--accent-gold);
+  text-shadow: 2px 2px 0 #000;
+  margin: 2rem 0 1rem;
+}
+
+/* Le tout premier sous-titre n'a pas besoin de marge supplémentaire en haut
+   (il suit directement le titre principal "Projets") */
+.projects-subtitle:first-of-type {
+  margin-top: 0;
+}
+
+/* Grille responsive de cartes projet, 260px minimum par carte */
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Ligne "meta" au-dessus de la description (ex: "Chef de projet · Groupe de 5 · ...") */
+.project-meta {
+  font-size: 9px;
+  color: #555;
+  text-transform: uppercase;
+}
+
+.project-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.project-card h3 {
+  font-size: 12px;
+  color: var(--text-dark);
+}
+
+.project-card p {
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.project-tags {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+/* Étiquette générique (tags de projets ET soft skills dans "À propos") */
+.tag {
+  font-size: 9px;
+  background: var(--stone-grey-dark);
+  color: #fff;
+  padding: 0.3rem 0.5rem;
+  border: 2px solid;
+  border-color: #a0a0a0 #2f2f2f #2f2f2f #a0a0a0;
+}
+
+.project-links {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: auto; /* Pousse les boutons en bas de la carte même si les cartes ont des hauteurs différentes */
+}
+
+.project-links a {
+  font-size: 9px;
+  padding: 0.5rem 0.7rem;
+  background: var(--stone-grey);
+  border: 2px solid;
+  border-color: #d0d0d0 #444 #444 #d0d0d0;
+  color: var(--text-dark);
+}
+
+.project-links a:hover {
+  background: var(--accent-gold);
+}
+
+/* Bouton "Démo" : un <button>, pas un <a>, car il ouvre la lightbox en JS
+   plutôt que de naviguer vers une autre page (voir script.js) */
+.btn-demo {
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  padding: 0.5rem 0.7rem;
+  background: var(--stone-grey);
+  color: var(--text-dark);
+  border: 2px solid;
+  border-color: #d0d0d0 #444 #444 #d0d0d0;
+  cursor: pointer;
+}
+
+.btn-demo:hover {
+  background: var(--accent-gold);
+}
+
+/* =============================================================================
+   LIGHTBOX — galerie plein écran des captures d'écran d'un projet
+   Ouverte/fermée par script.js en ajoutant/retirant l'attribut HTML "hidden"
+   sur #lightbox (voir porte_fo.php).
+   ============================================================================= */
+.lightbox {
+  position: fixed; /* Reste à l'écran même si on scrolle la page en dessous */
+  inset: 0;
+  z-index: 200; /* Au-dessus de tout le reste du site (navbar incluse) */
+  background: rgba(0, 0, 0, 0.8); /* Fond sombre semi-transparent */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+/* Quand l'attribut HTML "hidden" est présent, on force display:none
+   (nécessaire car .lightbox définit déjà display:flex juste au-dessus,
+   qui aurait sinon priorité sur le display:none implicite de [hidden]) */
+.lightbox[hidden] {
+  display: none;
+}
+
+.lightbox-panel {
+  width: min(700px, 100%);
+  max-height: 90vh; /* Ne dépasse jamais la hauteur de l'écran (scroll interne sinon) */
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.lightbox-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Titre du projet à gauche, bouton fermer à droite */
+  font-size: 11px;
+}
+
+.lightbox-close {
+  font-family: var(--font-pixel);
+  background: var(--accent-redstone);
+  color: #fff;
+  border: 2px solid;
+  border-color: #ff8a80 #6e1a14 #6e1a14 #ff8a80;
+  cursor: pointer;
+  padding: 0.4rem 0.6rem;
+}
+
+.lightbox-body {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  min-height: 200px; /* Garde une hauteur minimale même quand il n'y a pas encore d'image */
+}
+
+.lightbox-body img {
+  width: 100%;
+  max-height: 60vh;
+  object-fit: contain; /* Garde les proportions de l'image sans la déformer */
+  /* On annule le "image-rendering: pixelated" global : une vraie capture
+     d'écran doit rester nette, pas pixelisée comme les éléments décoratifs */
+  image-rendering: auto;
+  border: 4px solid var(--panel-inner);
+  background: #000;
+}
+
+/* Cache l'image (attribut HTML "hidden") quand le projet n'a pas d'images */
+.lightbox-body img[hidden] {
+  display: none;
+}
+
+/* Message "Images à venir pour ce projet." affiché à la place de l'image
+   quand le dossier assets/img/projects/<slug>/ est vide */
+.lightbox-empty {
+  flex: 1;
+  text-align: center;
+  font-size: 11px;
+  line-height: 1.8;
+}
+
+/* Flèches précédent/suivant de la galerie */
+.lightbox-nav {
+  flex-shrink: 0; /* Ne se compresse jamais, même si l'image prend beaucoup de place */
+  font-family: var(--font-pixel);
+  font-size: 12px;
+  background: #6b6b6b;
+  color: #fff;
+  border: 3px solid;
+  border-color: #a0a0a0 #2f2f2f #2f2f2f #a0a0a0;
+  padding: 0.8rem 0.6rem;
+  cursor: pointer;
+}
+
+.lightbox-nav:hover {
+  background: var(--grass-green);
+}
+
+/* visibility:hidden (et non display:none) pour que les flèches gardent leur
+   place dans la mise en page même quand il n'y a qu'une seule image
+   (évite que l'image ne "saute" horizontalement) */
+.lightbox-nav[hidden] {
+  visibility: hidden;
+}
+
+.lightbox-counter {
+  text-align: center;
+  font-size: 10px;
+}
+
+/* =============================================================================
+   SECTION "CONTACT"
+   ============================================================================= */
+
+/* Disposition en 2 colonnes : coordonnées (colonne étroite) + formulaire
+   (colonne large qui prend le reste de l'espace disponible) */
+.contact-grid {
+  display: grid;
+  grid-template-columns: minmax(220px, 320px) 1fr;
+  gap: 1.5rem;
+  max-width: 900px;
+  margin: 0 auto;
+  align-items: start; /* Les deux colonnes s'alignent en haut, même si l'une est plus haute que l'autre */
+}
+
+.contact-info h3 {
+  font-size: 12px;
+  margin-bottom: 1.2rem;
+  color: var(--grass-green-dark);
+}
+
+.contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-size: 11px;
+}
+
+.contact-list a {
+  text-decoration: underline; /* Les liens de contact restent soulignés pour rester identifiables */
+}
+
+.contact-panel {
+  margin: 0; /* Annule une éventuelle marge héritée : le positionnement est géré par .contact-grid */
+}
+
+/* Sur petit écran, on repasse en une seule colonne (coordonnées au-dessus du formulaire) */
+@media (max-width: 720px) {
+  .contact-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-row {
+  margin-bottom: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+label {
+  font-size: 10px;
+}
+
+input,
+textarea {
+  font-family: var(--font-pixel);
+  font-size: 11px;
+  padding: 0.7rem;
+  background: #1a1a1a;
+  color: #f5f5f5;
+  border: 3px solid;
+  border-color: #2f2f2f #7a7a7a #7a7a7a #2f2f2f; /* Relief "creusé" (inverse des boutons) pour évoquer un champ de saisie */
+}
+
+input:focus,
+textarea:focus {
+  outline: 2px solid var(--accent-gold); /* Contour doré bien visible pour l'accessibilité clavier */
+}
+
+textarea {
+  resize: vertical; /* L'utilisateur peut agrandir la zone de texte verticalement, pas horizontalement */
+  min-height: 120px;
+}
+
+/* Message de confirmation/erreur après soumission du formulaire (voir contact.php + $status en PHP) */
+.flash-message {
+  max-width: 600px;
+  margin: 0 auto 1.5rem;
+  padding: 1rem;
+  text-align: center;
+  font-size: 10px;
+  border: 3px solid;
+}
+
+.flash-message.success {
+  background: var(--grass-green-dark);
+  color: #fff;
+  border-color: #8fd66a #23431a #23431a #8fd66a;
+}
+
+.flash-message.error {
+  background: var(--accent-redstone);
+  color: #fff;
+  border-color: #ff8a80 #6e1a14 #6e1a14 #ff8a80;
+}
+
+/* =============================================================================
+   FOOTER
+   ============================================================================= */
+footer {
+  text-align: center;
+  padding: 2rem 0;
+  font-size: 10px;
+  color: #cfcfcf;
+  background: #1a1a1a;
+  border-top: 4px solid #000;
+}
+
+/* =============================================================================
+   RESPONSIVE — adaptation mobile (écrans <= 720px de large)
+   ============================================================================= */
+@media (max-width: 720px) {
+  /* Affiche le bouton hamburger, caché par défaut sur grand écran */
+  .nav-toggle {
+    display: block;
+  }
+
+  /* Le menu devient un panneau déroulant sous la navbar, caché par défaut */
+  .nav-links {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #2b2b2b;
+    flex-direction: column;
+    padding: 1rem;
+    display: none;
+  }
+
+  /* Classe ajoutée/retirée par script.js au clic sur le bouton hamburger */
+  .nav-links.open {
+    display: flex;
+  }
+}
