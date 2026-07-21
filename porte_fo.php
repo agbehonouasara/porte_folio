@@ -24,9 +24,11 @@ $profile = [
 // -----------------------------------------------------------------------
 // 2) COMPÉTENCES
 // Tableau associatif : la clé = nom de la catégorie (Front-end, Back-end...),
-// la valeur = liste de compétences avec un nom, une icône (emoji) et un
-// "level" en pourcentage (0-100) utilisé pour dessiner la barre XP en CSS.
-// NB : les niveaux sont des estimations, à ajuster selon le ressenti réel.
+// la valeur = liste de compétences avec un nom, une icône (emoji) affichée
+// dans un badge coloré façon icône d'application (voir .skill-icon en CSS),
+// et un "level" en pourcentage (0-100) affiché comme une petite jauge arrondie
+// sous le nom (voir .skill-gauge en CSS). NB : les niveaux sont des
+// estimations, à ajuster selon le ressenti réel.
 // -----------------------------------------------------------------------
 $skillCategories = [
     'Front-end' => [
@@ -174,23 +176,95 @@ $status = $_GET['status'] ?? null;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sara Agbehonou — Portfolio</title>
-    <!-- Police pixel "Press Start 2P" chargée depuis Google Fonts pour le thème rétro/Minecraft -->
-    <!-- + 2 polices "graffiti" pour les gros titres (Rubik Spray Paint = effet peinture au
-         pochoir, Permanent Marker = effet feutre épais façon tag) -->
+    <!-- Applique tout de suite les préférences d'accessibilité déjà enregistrées
+         (texte agrandi, police dyslexie, contraste élevé, animations réduites) en
+         ajoutant les classes correspondantes sur <html> AVANT que la page ne
+         s'affiche. Placé ici (tout en haut, en synchrone) plutôt que dans
+         script.js pour éviter un "flash" au chargement où la page s'afficherait
+         d'abord en réglages par défaut avant de sauter aux réglages sauvegardés.
+         Le reste de la logique du widget (boutons, sauvegarde) est dans script.js. -->
+    <script>
+        (function () {
+            try {
+                var prefs = JSON.parse(localStorage.getItem('a11yPrefs') || '{}');
+                var html = document.documentElement;
+                if (prefs.textSize === 1) html.classList.add('a11y-text-lg');
+                if (prefs.textSize === 2) html.classList.add('a11y-text-xl');
+                if (prefs.dyslexic) html.classList.add('a11y-dyslexic');
+                if (prefs.contrast) html.classList.add('a11y-contrast');
+                if (prefs.reduceMotion) html.classList.add('a11y-reduce-motion');
+            } catch (e) {
+                // localStorage indisponible (navigation privée très restrictive, etc.) :
+                // on ignore simplement, la page reste utilisable avec les réglages par défaut
+            }
+        })();
+    </script>
+    <!-- 3 polices Google Fonts pour le thème "chaleureux / illustré" :
+         Baloo 2 = gros titres arrondis façon bulle, Caveat = script manuscrit
+         pour les touches personnelles, Quicksand = texte courant -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Press+Start+2P&family=Rubik+Spray+Paint&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Caveat:wght@500;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
+    <!-- ============================== ACCESSIBILITÉ : LIEN D'ÉVITEMENT ==============================
+         Premier élément focusable de la page : invisible tant qu'il n'a pas le focus clavier,
+         il permet à une personne qui navigue au clavier ou avec un lecteur d'écran de sauter
+         directement au contenu principal sans devoir retraverser tout le menu à chaque page. -->
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+
+    <!-- ============================== WIDGET D'ACCESSIBILITÉ ==============================
+         Bouton flottant toujours visible (bas droite) qui ouvre un panneau de réglages :
+         taille du texte, police adaptée à la dyslexie, contraste élevé, animations réduites.
+         Toute la logique (ouverture/fermeture, application des réglages, sauvegarde) est
+         dans script.js ; voir aussi le petit script en haut du <head> qui réapplique les
+         réglages déjà enregistrés dès le chargement de la page. -->
+    <div class="a11y-widget">
+        <button type="button" class="a11y-toggle" id="a11y-toggle" aria-expanded="false" aria-controls="a11y-panel" aria-label="Ouvrir les options d'accessibilité">
+            <span aria-hidden="true">♿</span>
+        </button>
+        <div class="a11y-panel" id="a11y-panel" hidden>
+            <div class="a11y-panel-header">
+                <h2>Accessibilité</h2>
+                <button type="button" class="a11y-close" id="a11y-close" aria-label="Fermer les options d'accessibilité">✕</button>
+            </div>
+
+            <p class="a11y-group-label" id="a11y-text-size-label">Taille du texte</p>
+            <!-- role="group" + aria-labelledby : indique aux lecteurs d'écran que ces 3
+                 boutons forment un ensemble lié au libellé "Taille du texte" juste au-dessus -->
+            <div class="a11y-btn-row" role="group" aria-labelledby="a11y-text-size-label">
+                <button type="button" class="a11y-btn" id="a11y-text-smaller" aria-label="Réduire la taille du texte">A−</button>
+                <button type="button" class="a11y-btn" id="a11y-text-reset" aria-label="Taille de texte par défaut">A</button>
+                <button type="button" class="a11y-btn" id="a11y-text-larger" aria-label="Augmenter la taille du texte">A+</button>
+            </div>
+
+            <!-- aria-pressed reflète l'état actif/inactif de chaque bascule, mis à jour par
+                 script.js : un lecteur d'écran annonce alors "activé"/"désactivé" -->
+            <button type="button" class="a11y-toggle-btn" id="a11y-dyslexic-toggle" aria-pressed="false">
+                <span aria-hidden="true">🔤</span> Police adaptée dyslexie
+            </button>
+            <button type="button" class="a11y-toggle-btn" id="a11y-contrast-toggle" aria-pressed="false">
+                <span aria-hidden="true">◐</span> Contraste élevé
+            </button>
+            <button type="button" class="a11y-toggle-btn" id="a11y-motion-toggle" aria-pressed="false">
+                <span aria-hidden="true">⏸</span> Réduire les animations
+            </button>
+
+            <button type="button" class="a11y-reset-btn" id="a11y-reset">↺ Réinitialiser les réglages</button>
+        </div>
+    </div>
+
     <!-- ============================== NAVIGATION ============================== -->
-    <!-- Barre de navigation fixée en haut de page (sticky), façon "hotbar" Minecraft -->
+    <!-- Barre de navigation en pilule crème flottante, fixée en haut de page (sticky) -->
     <header class="navbar">
         <div class="container">
             <span class="logo">SARA.AGBEHONOU</span>
-            <!-- Bouton "hamburger" affiché uniquement en mobile (voir CSS + script.js) -->
-            <button class="nav-toggle" aria-label="Ouvrir le menu">☰</button>
-            <nav class="nav-links">
+            <!-- Bouton "hamburger" affiché uniquement en mobile (voir CSS + script.js).
+                 aria-expanded est mis à jour par script.js à chaque ouverture/fermeture pour
+                 informer les lecteurs d'écran de l'état actuel du menu. -->
+            <button class="nav-toggle" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="nav-links">☰</button>
+            <nav class="nav-links" id="nav-links" aria-label="Navigation principale">
                 <a href="#accueil">Accueil</a>
                 <a href="#a-propos">À propos</a>
                 <a href="#formation">Formation</a>
@@ -201,19 +275,31 @@ $status = $_GET['status'] ?? null;
         </div>
     </header>
 
+    <!-- id="main-content" = cible du lien d'évitement ci-dessus. tabindex="-1" permet de lui
+         donner le focus par script (clic sur le lien) sans l'ajouter à la navigation au Tab. -->
+    <main id="main-content" tabindex="-1">
+
     <!-- ============================== HERO / ACCUEIL ============================== -->
     <section id="accueil" class="hero">
-        <!-- Cubes décoratifs façon blocs Minecraft, générés en pur CSS (voir .cube dans style.css) -->
-        <div class="cube-field">
-            <div class="cube cube--1"><div class="face top"></div><div class="face left"></div><div class="face right"></div></div>
-            <div class="cube cube--2"><div class="face top"></div><div class="face left"></div><div class="face right"></div></div>
-            <div class="cube cube--3"><div class="face top"></div><div class="face left"></div><div class="face right"></div></div>
-            <div class="cube cube--4"><div class="face top"></div><div class="face left"></div><div class="face right"></div></div>
+        <!-- Formes organiques décoratives ("blobs"), générées en pur CSS (voir .blob
+             dans style.css) : remplacent les cubes Minecraft de l'ancien thème pour
+             évoquer un décor illustré/feuillage stylisé sans image réelle.
+             aria-hidden="true" : ces formes sont purement visuelles et ne doivent pas
+             être annoncées par les lecteurs d'écran. -->
+        <div class="blob-field" aria-hidden="true">
+            <div class="blob blob--1"></div>
+            <div class="blob blob--2"></div>
+            <div class="blob blob--3"></div>
+            <div class="blob blob--4"></div>
         </div>
         <div class="container">
-            <h1 class="hero-title">SARA AGBEHONOU</h1>
-            <p class="hero-subtitle">Ingénieure informatique en formation à l'ESIEA — Développement Web &amp; Systèmes/Réseau</p>
-            <p class="hero-subtitle hero-subtitle--small">🎓 À la recherche d'une alternance de 12 mois</p>
+            <p class="hero-eyebrow">Sara Agbehonou · Ingénieure informatique</p>
+            <h1 class="hero-title">PORTFOLIO</h1>
+            <span class="hero-year">2026</span>
+            <p class="hero-subtitle">Développement Web &amp; Systèmes/Réseau — parcours Expert à l'ESIEA</p>
+            <!-- L'emoji décoratif est masqué aux lecteurs d'écran (aria-hidden) : le texte qui
+                 suit porte déjà tout le sens, l'emoji n'apporte rien à l'écoute -->
+            <p class="hero-subtitle hero-subtitle--small"><span aria-hidden="true">🌿</span> À la recherche d'une alternance de 12 mois</p>
             <!-- Boutons d'action principaux : ancres vers d'autres sections de la même page -->
             <div class="hero-actions">
                 <a href="#projets" class="btn btn-primary">Voir mes projets</a>
@@ -221,8 +307,8 @@ $status = $_GET['status'] ?? null;
             </div>
             <!-- Téléchargement direct des CV en PDF (attribut "download" = pas d'ouverture dans un nouvel onglet) -->
             <div class="hero-actions hero-actions--cv">
-                <a href="assets/cv/CV_Sara_Agbehonou_DevWeb.pdf" class="btn btn-cv" download>⬇ CV Développement Web</a>
-                <a href="assets/cv/CV_Sara_Agbehonou_SysReseau.pdf" class="btn btn-cv" download>⬇ CV Système &amp; Réseau</a>
+                <a href="assets/cv/CV_Sara_Agbehonou_DevWeb.pdf" class="btn btn-cv" download><span aria-hidden="true">⬇</span> CV Développement Web</a>
+                <a href="assets/cv/CV_Sara_Agbehonou_SysReseau.pdf" class="btn btn-cv" download><span aria-hidden="true">⬇</span> CV Système &amp; Réseau</a>
             </div>
         </div>
     </section>
@@ -231,8 +317,20 @@ $status = $_GET['status'] ?? null;
     <section id="a-propos">
         <div class="container">
             <h2 class="section-title">À propos</h2>
-            <div class="pixel-panel about-grid reveal">
+            <div class="card about-grid reveal">
+                <!-- Avatar rond avec initiales (aucune photo fournie pour l'instant) + légende
+                     manuscrite inclinée, façon "That's me!" de la référence visuelle.
+                     Pour utiliser une vraie photo plus tard : remplacer ce bloc par une balise
+                     <img> ronde (border-radius: 50%) pointant vers le fichier de la photo. -->
+                <div class="avatar-wrap">
+                    <!-- role="img" + aria-label : un lecteur d'écran annoncera une description
+                         utile ("Avatar avec les initiales...") plutôt que de lire "S A" lettre
+                         par lettre comme du texte normal -->
+                    <div class="avatar-circle" role="img" aria-label="Avatar avec les initiales de Sara Agbehonou">SA</div>
+                    <span class="avatar-caption" aria-hidden="true">C'est moi !</span>
+                </div>
                 <div class="about-text">
+                    <p class="about-greeting">Salut, moi c'est Sara !</p>
                     <p>
                         Je suis étudiante ingénieure à l'ESIEA, en parcours Expert double compétence
                         <strong> Systèmes &amp; Réseau</strong> et <strong>Développement Web</strong>.
@@ -268,7 +366,7 @@ $status = $_GET['status'] ?? null;
     <section id="formation">
         <div class="container">
             <h2 class="section-title">Formation</h2>
-            <div class="pixel-panel reveal">
+            <div class="card reveal">
                 <div class="timeline">
                     <div class="timeline-item">
                         <div class="timeline-head">
@@ -301,19 +399,23 @@ $status = $_GET['status'] ?? null;
             <h2 class="section-title">Compétences</h2>
             <?php // Première boucle : on parcourt chaque CATÉGORIE (Front-end, Back-end, ...) ?>
             <?php foreach ($skillCategories as $category => $skills): ?>
-                <div class="pixel-panel reveal skills-category">
+                <div class="card reveal skills-category">
                     <h3 class="skills-category-title"><?= htmlspecialchars($category) ?></h3>
                     <div class="skills-grid">
                         <?php // Deuxième boucle (imbriquée) : chaque compétence DANS la catégorie ?>
                         <?php foreach ($skills as $skill): ?>
+                            <!-- Badge carré coloré façon icône d'application (voir .skill-icon en CSS,
+                                 la couleur change automatiquement selon la position grâce à :nth-child)
+                                 + petite jauge de niveau arrondie sous le nom (voir .skill-gauge en CSS).
+                                 L'icône emoji est masquée aux lecteurs d'écran (aria-hidden) car le nom
+                                 juste à côté transmet déjà toute l'information utile. La jauge a un
+                                 role="progressbar" avec des valeurs numériques pour être annoncée
+                                 correctement ("Niveau : 85 sur 100") plutôt que d'être ignorée. -->
                             <div class="skill-slot">
-                                <div class="skill-head">
-                                    <span class="skill-icon"><?= htmlspecialchars($skill['icon']) ?></span>
-                                    <span><?= htmlspecialchars($skill['name']) ?></span>
-                                </div>
-                                <!-- Barre "XP" façon Minecraft : la largeur en % vient directement du tableau PHP -->
-                                <div class="xp-bar">
-                                    <div class="xp-bar-fill" style="width: <?= (int) $skill['level'] ?>%;"></div>
+                                <span class="skill-icon" aria-hidden="true"><?= htmlspecialchars($skill['icon']) ?></span>
+                                <span><?= htmlspecialchars($skill['name']) ?></span>
+                                <div class="skill-gauge" role="progressbar" aria-valuenow="<?= (int) $skill['level'] ?>" aria-valuemin="0" aria-valuemax="100" aria-label="Niveau en <?= htmlspecialchars($skill['name']) ?>">
+                                    <div class="skill-gauge-fill" style="width: <?= (int) $skill['level'] ?>%;"></div>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -329,12 +431,12 @@ $status = $_GET['status'] ?? null;
             <h2 class="section-title">Projets</h2>
 
             <!-- --- Sous-section "Développement" --- -->
-            <h3 class="projects-subtitle">💻 Développement</h3>
+            <h3 class="projects-subtitle"><span aria-hidden="true">💻</span> Développement</h3>
             <div class="projects-grid">
                 <?php foreach ($projects as $index => $project): ?>
                     <?php // On saute (continue) les projets qui ne sont pas de catégorie "dev" ?>
                     <?php if ($project['category'] !== 'dev') continue; ?>
-                    <div class="pixel-panel project-card reveal">
+                    <div class="card project-card reveal">
                         <h3><?= htmlspecialchars($project['title']) ?></h3>
                         <p class="project-meta"><?= htmlspecialchars($project['meta']) ?></p>
                         <p><?= htmlspecialchars($project['description']) ?></p>
@@ -354,12 +456,12 @@ $status = $_GET['status'] ?? null;
             </div>
 
             <!-- --- Sous-section "Systèmes & Réseau" --- -->
-            <h3 class="projects-subtitle">🖧 Systèmes &amp; Réseau</h3>
+            <h3 class="projects-subtitle"><span aria-hidden="true">🖧</span> Systèmes &amp; Réseau</h3>
             <div class="projects-grid">
                 <?php foreach ($projects as $index => $project): ?>
                     <?php // Ici on garde uniquement les projets de catégorie "sys" ?>
                     <?php if ($project['category'] !== 'sys') continue; ?>
-                    <div class="pixel-panel project-card reveal">
+                    <div class="card project-card reveal">
                         <h3><?= htmlspecialchars($project['title']) ?></h3>
                         <p class="project-meta"><?= htmlspecialchars($project['meta']) ?></p>
                         <p><?= htmlspecialchars($project['description']) ?></p>
@@ -380,21 +482,28 @@ $status = $_GET['status'] ?? null;
 
     <!-- ============================== LIGHTBOX (galerie plein écran) ==============================
          Fenêtre modale cachée par défaut (attribut "hidden"). Le bouton "Démo" d'un projet
-         l'ouvre via script.js et y affiche les images correspondantes une par une. -->
-    <div id="lightbox" class="lightbox" hidden>
-        <div class="lightbox-panel pixel-panel">
+         l'ouvre via script.js et y affiche les images correspondantes une par une.
+         role="dialog" + aria-modal="true" : indique aux lecteurs d'écran qu'il s'agit d'une
+         fenêtre modale qui doit capter toute l'attention (voir le piège de focus dans script.js).
+         aria-labelledby pointe vers le titre du projet affiché, utilisé comme "nom" de la fenêtre. -->
+    <div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-labelledby="lightbox-title" hidden>
+        <div class="lightbox-panel card">
             <div class="lightbox-header">
                 <span id="lightbox-title"></span>
                 <button type="button" class="lightbox-close" aria-label="Fermer">✕</button>
             </div>
             <div class="lightbox-body">
                 <button type="button" class="lightbox-nav lightbox-prev" aria-label="Image précédente">◀</button>
+                <!-- L'attribut alt est rempli dynamiquement par script.js (titre du projet +
+                     numéro d'image) car son contenu dépend de l'image actuellement affichée -->
                 <img id="lightbox-image" src="" alt="">
                 <!-- Message affiché si le projet n'a pas encore d'images dans son dossier -->
                 <p id="lightbox-empty" class="lightbox-empty" hidden>Images à venir pour ce projet.</p>
                 <button type="button" class="lightbox-nav lightbox-next" aria-label="Image suivante">▶</button>
             </div>
-            <p id="lightbox-counter" class="lightbox-counter"></p>
+            <!-- aria-live="polite" : quand le texte change (ex: "2 / 5"), les lecteurs d'écran
+                 l'annoncent automatiquement sans que l'utilisateur ait à redéplacer son focus -->
+            <p id="lightbox-counter" class="lightbox-counter" aria-live="polite"></p>
         </div>
     </div>
 
@@ -412,29 +521,34 @@ $status = $_GET['status'] ?? null;
         <div class="container">
             <h2 class="section-title">Contact</h2>
 
-            <?php // Message de confirmation ou d'erreur après soumission du formulaire (voir contact.php) ?>
+            <?php // Message de confirmation ou d'erreur après soumission du formulaire (voir contact.php).
+                   // role="status"/"alert" + aria-live : un lecteur d'écran annonce automatiquement
+                   // ce message dès qu'il apparaît, même si l'utilisateur n'a pas déplacé son focus dessus
+                   // ("alert" est plus insistant que "status", adapté à un message d'erreur). ?>
             <?php if ($status === 'success'): ?>
-                <div class="flash-message success">Message envoyé avec succès, merci !</div>
+                <div class="flash-message success" role="status">Message envoyé avec succès, merci !</div>
             <?php elseif ($status === 'error'): ?>
-                <div class="flash-message error">Merci de remplir correctement tous les champs.</div>
+                <div class="flash-message error" role="alert">Merci de remplir correctement tous les champs.</div>
             <?php endif; ?>
 
             <div class="contact-grid">
-                <!-- Bloc coordonnées : affiché à gauche (voir .contact-grid en CSS) -->
-                <div class="pixel-panel contact-info reveal">
+                <!-- Bloc coordonnées : affiché à gauche (voir .contact-grid en CSS).
+                     Les emojis sont décoratifs (aria-hidden) : le texte/lien qui suit
+                     porte déjà tout le sens utile pour un lecteur d'écran. -->
+                <div class="card contact-info reveal">
                     <h3>Coordonnées</h3>
                     <ul class="contact-list">
-                        <li>📍 <?= htmlspecialchars($profile['location']) ?></li>
+                        <li><span aria-hidden="true">📍</span> <?= htmlspecialchars($profile['location']) ?></li>
                         <!-- str_replace supprime les espaces du numéro pour que le lien tel: fonctionne -->
-                        <li>📞 <a href="tel:<?= htmlspecialchars(str_replace(' ', '', $profile['phone'])) ?>"><?= htmlspecialchars($profile['phone']) ?></a></li>
-                        <li>✉ <a href="mailto:<?= htmlspecialchars($profile['email']) ?>"><?= htmlspecialchars($profile['email']) ?></a></li>
-                        <li>🔗 <a href="https://<?= htmlspecialchars($profile['linkedin']) ?>" target="_blank" rel="noopener">LinkedIn</a></li>
+                        <li><span aria-hidden="true">📞</span> <a href="tel:<?= htmlspecialchars(str_replace(' ', '', $profile['phone'])) ?>"><?= htmlspecialchars($profile['phone']) ?></a></li>
+                        <li><span aria-hidden="true">✉</span> <a href="mailto:<?= htmlspecialchars($profile['email']) ?>"><?= htmlspecialchars($profile['email']) ?></a></li>
+                        <li><span aria-hidden="true">🔗</span> <a href="https://<?= htmlspecialchars($profile['linkedin']) ?>" target="_blank" rel="noopener">LinkedIn <span class="sr-only">(ouvre dans un nouvel onglet)</span></a></li>
                     </ul>
                 </div>
 
                 <!-- Formulaire de contact : envoyé en POST vers contact.php qui valide et
                      enregistre le message dans data/messages.json (voir ce fichier) -->
-                <div class="pixel-panel contact-panel reveal">
+                <div class="card contact-panel reveal">
                     <form id="contact-form" action="contact.php" method="POST" novalidate>
                         <div class="form-row">
                             <label for="name">Nom</label>
@@ -454,6 +568,8 @@ $status = $_GET['status'] ?? null;
             </div>
         </div>
     </section>
+
+    </main>
 
     <footer>
         <!-- date('Y') affiche automatiquement l'année en cours, pas besoin de la changer chaque année -->
