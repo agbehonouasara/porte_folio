@@ -38,6 +38,13 @@
   --accent-gold: #f6c945;        /* Jaune "or" (titres, survols) */
   --accent-redstone: #d3352b;    /* Rouge "redstone" (erreurs, bouton fermer) */
   --font-pixel: "Press Start 2P", "VT323", monospace; /* Police pixel avec repli (fallback) monospace */
+
+  /* Polices "graffiti" utilisées uniquement pour les gros titres (voir plus bas
+     .hero-title, .section-title...), inspirées d'un style affiche/tag urbain :
+     - graffiti-spray = effet peinture au pochoir, pour le tout premier titre
+     - graffiti-marker = effet feutre épais, pour les titres de section */
+  --font-graffiti-spray: "Rubik Spray Paint", var(--font-pixel);
+  --font-graffiti-marker: "Permanent Marker", var(--font-pixel);
 }
 
 /* -----------------------------------------------------------------------
@@ -62,6 +69,7 @@ html {
 }
 
 body {
+  position: relative; /* Nécessaire pour que le grain ::before ci-dessous s'y positionne */
   font-family: var(--font-pixel);
   font-size: 12px;
   line-height: 1.8; /* Interligne généreux : la police pixel est dense et peu lisible sinon */
@@ -70,6 +78,21 @@ body {
   background: linear-gradient(180deg, var(--sky-night) 0%, #2b2b52 45%, #3a5f3a 100%);
   background-attachment: fixed; /* Le fond ne bouge pas quand on scrolle (effet de profondeur) */
   min-height: 100vh;
+}
+
+/* Grain/texture "béton taggé" très subtil sur tout le fond du site, inspiré
+   du fond granuleux et sombre de la réf. "graffiti crew". Fait uniquement en
+   CSS avec un dégradé radial répété en tout petit (façon bruit/grain photo),
+   superposé en mode "overlay" pour rester discret et ne pas gêner la lecture. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.5) 1px, transparent 1px);
+  background-size: 3px 3px; /* Motif minuscule répété = effet de grain */
+  opacity: 0.05; /* Très léger : on veut juste casser les aplats de couleur, pas distraire */
+  mix-blend-mode: overlay;
+  pointer-events: none; /* Ne bloque aucun clic sur le contenu en dessous */
 }
 
 img {
@@ -166,7 +189,8 @@ ul {
 }
 
 .logo {
-  font-size: 13px;
+  font-family: var(--font-graffiti-marker);
+  font-size: 18px;
   color: var(--accent-gold);
   text-shadow: 2px 2px 0 #000;
 }
@@ -218,11 +242,69 @@ ul {
   overflow: hidden; /* Empêche les cubes décoratifs de déborder hors de la section */
 }
 
+/* ---- Éclaboussures de peinture décoratives (inspirées de la réf. "graffiti crew") ----
+   Deux taches de peinture floues, placées derrière le titre, en pur CSS
+   (radial-gradient + blur), dans les couleurs du thème (vert/or) pour rester
+   cohérent avec l'univers Minecraft plutôt que d'importer des couleurs vives. */
+.hero::before,
+.hero::after {
+  content: "";
+  position: absolute;
+  width: 260px;
+  height: 260px;
+  border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%; /* Forme irrégulière façon tache */
+  filter: blur(6px);
+  opacity: 0.35;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hero::before {
+  background: radial-gradient(circle, var(--grass-green) 0%, transparent 70%);
+  top: -40px;
+  left: 8%;
+}
+
+.hero::after {
+  background: radial-gradient(circle, var(--accent-gold) 0%, transparent 70%);
+  bottom: -60px;
+  right: 10%;
+}
+
+/* Le titre doit rester au-dessus des taches de peinture et des cubes */
+.hero-title,
+.hero-subtitle,
+.hero-subtitle--small,
+.hero-actions,
+.hero-actions--cv {
+  position: relative;
+  z-index: 1;
+}
+
 .hero-title {
+  /* Police "graffiti" façon peinture au pochoir pour le grand titre d'accueil */
+  font-family: var(--font-graffiti-spray);
   /* clamp(min, valeur-idéale, max) = taille fluide qui s'adapte à l'écran
      sans jamais descendre sous 20px ni dépasser 34px */
-  font-size: clamp(20px, 4vw, 34px);
-  color: var(--accent-gold);
+  font-size: clamp(28px, 6vw, 52px);
+  letter-spacing: 2px;
+  /* Remplissage "peinture mélangée" : dégradé multi-teintes (vert -> or -> blanc
+     -> cyan) au lieu d'une couleur unie, pour évoquer le lettrage graffiti
+     multicolore de la réf. "ARMY", tout en restant dans la palette du site. */
+  background: linear-gradient(
+    90deg,
+    var(--grass-green) 0%,
+    var(--accent-gold) 40%,
+    #ffffff 65%,
+    var(--accent-diamond) 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  /* text-shadow fonctionne même sur un texte "transparent" : il dessine le
+     contour d'après la forme des lettres, pas d'après leur couleur de
+     remplissage. Ça donne le contour noir net façon tag/pochoir. */
   text-shadow: 3px 3px 0 #000;
   margin-bottom: 1.2rem;
 }
@@ -364,16 +446,36 @@ section {
 }
 
 .section-title {
-  font-size: 18px;
+  /* Police "graffiti" façon feutre épais pour les titres de section */
+  font-family: var(--font-graffiti-marker);
+  font-size: 26px;
   text-align: center;
   color: var(--accent-gold);
   text-shadow: 3px 3px 0 #000;
   margin-bottom: 2.5rem;
+  position: relative; /* Nécessaire pour positionner le trait ::after par rapport au titre */
 }
 
 /* Petit curseur/barre décorative façon "terminal" avant chaque titre de section */
 .section-title::before {
   content: "▍ ";
+}
+
+/* Trait "coup de peinture" sous le titre, inspiré des soulignements irréguliers
+   du site graffiti de référence : une petite barre centrée, légèrement penchée,
+   avec des bords arrondis inégaux façon coup de pinceau plutôt qu'une ligne droite.
+   Largeur fixe (au lieu d'un %) car .section-title occupe toute la largeur du
+   conteneur : un % serait beaucoup trop large par rapport au texte affiché. */
+.section-title::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -0.6rem;
+  width: 90px;
+  height: 5px;
+  background: var(--grass-green);
+  border-radius: 40% 60% 55% 45% / 60% 40% 60% 40%;
+  transform: translateX(-50%) rotate(-1deg); /* Centre le trait sous le titre, quelle que soit la longueur du texte */
 }
 
 /* =============================================================================
@@ -444,7 +546,8 @@ section {
 }
 
 .skills-category-title {
-  font-size: 12px;
+  font-family: var(--font-graffiti-marker);
+  font-size: 16px;
   color: var(--grass-green-dark);
   margin-bottom: 1rem;
 }
@@ -511,7 +614,8 @@ section {
 
 /* Sous-titre de chaque bloc de projets ("💻 Développement" / "🖧 Systèmes & Réseau") */
 .projects-subtitle {
-  font-size: 13px;
+  font-family: var(--font-graffiti-marker);
+  font-size: 20px;
   color: var(--accent-gold);
   text-shadow: 2px 2px 0 #000;
   margin: 2rem 0 1rem;

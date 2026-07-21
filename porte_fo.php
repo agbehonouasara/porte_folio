@@ -36,7 +36,7 @@ $skillCategories = [
         ['name' => 'Nunjucks', 'icon' => '📄', 'level' => 60],
     ],
     'Back-end' => [
-        ['name' => 'PHP (MVC, PRG, CSRF)', 'icon' => '🐘', 'level' => 75],
+        ['name' => 'PHP (MVC)', 'icon' => '🐘', 'level' => 75],
         ['name' => 'Node.js / Express', 'icon' => '🟢', 'level' => 65],
         ['name' => 'MySQL / MariaDB', 'icon' => '🗄️', 'level' => 70],
         ['name' => 'Python', 'icon' => '🐍', 'level' => 55],
@@ -175,8 +175,10 @@ $status = $_GET['status'] ?? null;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sara Agbehonou — Portfolio</title>
     <!-- Police pixel "Press Start 2P" chargée depuis Google Fonts pour le thème rétro/Minecraft -->
+    <!-- + 2 polices "graffiti" pour les gros titres (Rubik Spray Paint = effet peinture au
+         pochoir, Permanent Marker = effet feutre épais façon tag) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Press+Start+2P&family=Rubik+Spray+Paint&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -278,7 +280,7 @@ $status = $_GET['status'] ?? null;
                     <div class="timeline-item">
                         <div class="timeline-head">
                             <strong>Université d'Orléans</strong>
-                            <span class="timeline-period">09/2023 → 06/2025</span>
+                            <span class="timeline-period">09/2024 → 06/2025</span>
                         </div>
                         <p>L1 Mathématiques – Informatique</p>
                     </div>
@@ -287,8 +289,7 @@ $status = $_GET['status'] ?? null;
                             <strong>Baccalauréat</strong>
                             <span class="timeline-period"></span>
                         </div>
-                        <p>Spécialités NSI / SES</p>
-                    </div>
+                        <p>Spécialités NSI / SES</p>                   </div>
                 </div>
             </div>
         </div>
