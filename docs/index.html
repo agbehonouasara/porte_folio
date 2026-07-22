@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sara Agbehonou — Portfolio</title>
+    <!-- Applique tout de suite les préférences d'accessibilité déjà enregistrées
+         (texte agrandi, police dyslexie, contraste élevé, animations réduites) en
+         ajoutant les classes correspondantes sur <html> AVANT que la page ne
+         s'affiche. Placé ici (tout en haut, en synchrone) plutôt que dans
+         script.js pour éviter un "flash" au chargement où la page s'afficherait
+         d'abord en réglages par défaut avant de sauter aux réglages sauvegardés.
+         Le reste de la logique du widget (boutons, sauvegarde) est dans script.js. -->
+    <script>
+        (function () {
+            try {
+                var prefs = JSON.parse(localStorage.getItem('a11yPrefs') || '{}');
+                var html = document.documentElement;
+                if (prefs.textSize === 1) html.classList.add('a11y-text-lg');
+                if (prefs.textSize === 2) html.classList.add('a11y-text-xl');
+                if (prefs.lightMode) html.classList.add('a11y-light');
+                if (prefs.dyslexic) html.classList.add('a11y-dyslexic');
+                if (prefs.contrast) html.classList.add('a11y-contrast');
+                if (prefs.reduceMotion) html.classList.add('a11y-reduce-motion');
+            } catch (e) {
+                // localStorage indisponible (navigation privée très restrictive, etc.) :
+                // on ignore simplement, la page reste utilisable avec les réglages par défaut
+            }
+        })();
+    </script>
+    <!-- 3 polices Google Fonts pour le thème "comic / street-art" :
+         Bangers = gros titres façon bande dessinée, Space Mono = étiquettes
+         techniques (dates, méta-infos) façon plan/schéma, Inter = texte courant -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- ============================== ACCESSIBILITÉ : LIEN D'ÉVITEMENT ==============================
+         Premier élément focusable de la page : invisible tant qu'il n'a pas le focus clavier,
+         il permet à une personne qui navigue au clavier ou avec un lecteur d'écran de sauter
+         directement au contenu principal sans devoir retraverser tout le menu à chaque page. -->
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+
+    <!-- ============================== WIDGET D'ACCESSIBILITÉ ==============================
+         Bouton flottant toujours visible (bas droite) qui ouvre un panneau de réglages :
+         taille du texte, police adaptée à la dyslexie, contraste élevé, animations réduites.
+         Le bouton affiche "Aa" (texte, pas d'emoji/pictogramme) : convention courante des
+         widgets d'accessibilité, et ça reste lisible/recolorable dans tous les modes (y
+         compris le contraste élevé, contrairement à un emoji qui garde ses propres couleurs).
+         Toute la logique (ouverture/fermeture, application des réglages, sauvegarde) est
+         dans script.js ; voir aussi le petit script en haut du <head> qui réapplique les
+         réglages déjà enregistrés dès le chargement de la page. -->
+    <div class="a11y-widget">
+        <button type="button" class="a11y-toggle" id="a11y-toggle" aria-expanded="false" aria-controls="a11y-panel" aria-label="Ouvrir les options d'accessibilité">
+            Aa
+        </button>
+        <div class="a11y-panel" id="a11y-panel" hidden>
+            <div class="a11y-panel-header">
+                <h2>Accessibilité</h2>
+                <button type="button" class="a11y-close" id="a11y-close" aria-label="Fermer les options d'accessibilité">✕</button>
+            </div>
+
+            <p class="a11y-group-label" id="a11y-text-size-label">Taille du texte</p>
+            <!-- role="group" + aria-labelledby : indique aux lecteurs d'écran que ces 3
+                 boutons forment un ensemble lié au libellé "Taille du texte" juste au-dessus -->
+            <div class="a11y-btn-row" role="group" aria-labelledby="a11y-text-size-label">
+                <button type="button" class="a11y-btn" id="a11y-text-smaller" aria-label="Réduire la taille du texte">A−</button>
+                <button type="button" class="a11y-btn" id="a11y-text-reset" aria-label="Taille de texte par défaut">A</button>
+                <button type="button" class="a11y-btn" id="a11y-text-larger" aria-label="Augmenter la taille du texte">A+</button>
+            </div>
+
+            <!-- aria-pressed reflète l'état actif/inactif de chaque bascule, mis à jour par
+                 script.js : un lecteur d'écran annonce alors "activé"/"désactivé" -->
+            <button type="button" class="a11y-toggle-btn" id="a11y-light-toggle" aria-pressed="false">
+                Mode clair
+            </button>
+            <button type="button" class="a11y-toggle-btn" id="a11y-dyslexic-toggle" aria-pressed="false">
+                Police adaptée dyslexie
+            </button>
+            <button type="button" class="a11y-toggle-btn" id="a11y-contrast-toggle" aria-pressed="false">
+                Contraste élevé
+            </button>
+            <button type="button" class="a11y-toggle-btn" id="a11y-motion-toggle" aria-pressed="false">
+                Réduire les animations
+            </button>
+
+            <button type="button" class="a11y-reset-btn" id="a11y-reset">Réinitialiser les réglages</button>
+        </div>
+    </div>
+
+    <!-- ============================== NAVIGATION ============================== -->
+    <!-- Barre de navigation en pilule flottante, fixée en haut de page (sticky) -->
+    <header class="navbar">
+        <div class="container">
+            <span class="logo">SARA.AGBEHONOU</span>
+            <!-- Bouton "hamburger" affiché uniquement en mobile (voir CSS + script.js).
+                 aria-expanded est mis à jour par script.js à chaque ouverture/fermeture pour
+                 informer les lecteurs d'écran de l'état actuel du menu. -->
+            <button class="nav-toggle" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="nav-links">☰</button>
+            <nav class="nav-links" id="nav-links" aria-label="Navigation principale">
+                <a href="#accueil">Accueil</a>
+                <a href="#a-propos">À propos</a>
+                <a href="#formation">Formation</a>
+                <a href="#competences">Compétences</a>
+                <a href="#projets">Projets</a>
+                <a href="#contact">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- id="main-content" = cible du lien d'évitement ci-dessus. tabindex="-1" permet de lui
+         donner le focus par script (clic sur le lien) sans l'ajouter à la navigation au Tab. -->
+    <main id="main-content" tabindex="-1">
+
+    <!-- ============================== HERO / ACCUEIL ============================== -->
+    <section id="accueil" class="hero">
+        <!-- Traits façon toile d'araignée décoratifs, en pur CSS (voir .web-field
+             dans style.css) : remplacent les formes organiques de l'ancien thème
+             pour évoquer l'esprit "comic/super-héros" sans image réelle.
+             aria-hidden="true" : ces traits sont purement visuels. -->
+        <div class="web-field" aria-hidden="true">
+            <div class="web-line web-line--1"></div>
+            <div class="web-line web-line--2"></div>
+            <div class="web-line web-line--3"></div>
+            <div class="web-line web-line--4"></div>
+        </div>
+        <div class="container">
+            <p class="hero-eyebrow">Sara Agbehonou · Ingénieure informatique</p>
+            <h1 class="hero-title">PORTFOLIO</h1>
+            <span class="hero-year">2026</span>
+            <p class="hero-subtitle">Développement Web &amp; Systèmes/Réseau — parcours Expert à l'ESIEA</p>
+            <p class="hero-subtitle hero-subtitle--small">À la recherche d'une alternance de 12 mois</p>
+            <!-- Boutons d'action principaux : ancres vers d'autres sections de la même page -->
+            <div class="hero-actions">
+                <a href="#projets" class="btn btn-primary">Voir mes projets</a>
+                <a href="#contact" class="btn">Me contacter</a>
+            </div>
+            <!-- Téléchargement direct des CV en PDF (attribut "download" = pas d'ouverture dans un nouvel onglet) -->
+            <div class="hero-actions hero-actions--cv">
+                <a href="assets/cv/CV_Sara_Agbehonou_DevWeb.pdf" class="btn btn-cv" download>
+                    <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 20h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    CV Développement Web
+                </a>
+                <a href="assets/cv/CV_Sara_Agbehonou_SysReseau.pdf" class="btn btn-cv" download>
+                    <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 20h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    CV Système &amp; Réseau
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================== À PROPOS ============================== -->
+    <section id="a-propos">
+        <div class="container">
+            <h2 class="section-title">À propos</h2>
+            <div class="card about-grid reveal">
+                <div class="about-text">
+                    <p class="about-greeting">Salut, moi c'est Sara !</p>
+                    <p>
+                        Je suis étudiante ingénieure à l'ESIEA, en parcours Expert double compétence
+                        <strong> Systèmes &amp; Réseau</strong> et <strong>Développement Web</strong>.
+                        J'aime autant configurer une infrastructure réseau ou un serveur que construire
+                        une application web de bout en bout.
+                    </p>
+                    <p>
+                        Récemment cheffe de projet sur <strong>NutriCare+</strong>, une application de
+                        suivi médical développée et livrée en équipe de 5, j'y ai piloté aussi bien la
+                        technique (architecture MVC, base de données, sécurité) que l'organisation
+                        (roadmap, répartition des tâches, sprints).
+                    </p>
+                    <p>
+                        Rigoureuse, autonome et à l'aise en équipe, je suis actuellement à la recherche
+                        d'une <strong>alternance de 12 mois</strong> pour continuer à monter en
+                        compétences sur le terrain.
+                    </p>
+                    <!-- Liste de "soft skills" affichés comme des étiquettes (même style que les tags de projets) -->
+                    <div class="about-tags">
+                        <span class="tag">Rigoureuse &amp; autonome</span>
+                        <span class="tag">Esprit d'analyse</span>
+                        <span class="tag">Proactive &amp; adaptable</span>
+                        <span class="tag">Travail en équipe</span>
+                        <span class="tag">Communication claire</span>
+                    </div>
+
+                    <!-- Centres d'intérêt : étiquettes claires (fond blanc, bordure fine)
+                         plutôt que les pilules noires réutilisées ailleurs, pour ce bloc précis -->
+                    <p class="interests-title">Centres d'intérêt</p>
+                    <div class="interest-tags">
+                        <span class="interest-tag">Art séquentiel</span>
+                        <span class="interest-tag">Cinéma (Marvel)</span>
+                        <span class="interest-tag">Tir à l'arc</span>
+                        <span class="interest-tag">Basket</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================== FORMATION ============================== -->
+    <!-- Frise chronologique statique (pas de boucle PHP ici, contenu écrit en dur) -->
+    <section id="formation">
+        <div class="container">
+            <h2 class="section-title">Formation</h2>
+            <div class="card reveal">
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-head">
+                            <strong>ESIEA — Ivry-sur-Seine</strong>
+                            <span class="timeline-period">2025 → en cours</span>
+                        </div>
+                        <p>Ingénieur informatique — Parcours Expert : Systèmes &amp; Réseau / Développement Web</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-head">
+                            <strong>Université d'Orléans</strong>
+                            <span class="timeline-period">09/2024 → 06/2025</span>
+                        </div>
+                        <p>L1 Mathématiques – Informatique</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-head">
+                            <strong>Baccalauréat</strong>
+                            <span class="timeline-period"></span>
+                        </div>
+                        <p>Spécialités NSI / SES</p>                   </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================== COMPÉTENCES ============================== -->
+    <section id="competences">
+        <div class="container">
+            <h2 class="section-title">Compétences</h2>
+                                        <div class="card reveal skills-category">
+                    <h3 class="skills-category-title">Front-end</h3>
+                    <div class="skills-grid">
+                                                                            <!-- Badge carré coloré : affiche le logo déposé dans assets/img/logos/
+                                 s'il existe (voir le scan en haut du fichier), sinon les initiales
+                                 de la compétence en repli (jamais d'emoji). La couleur de fond du
+                                 badge de repli change automatiquement selon la position grâce à
+                                 :nth-child. + petite jauge de niveau arrondie sous le nom. -->
+                            <div class="skill-slot">
+                                                                    <span class="skill-icon skill-icon--logo">
+                                        <img src="assets/img/logos/html-css.svg" alt="" width="28" height="28">
+                                    </span>
+                                                                <span>HTML5 / CSS3</span>
+                                <div class="skill-gauge" role="progressbar" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100" aria-label="Niveau en HTML5 / CSS3">
+                                    <div class="skill-gauge-fill" style="width: 85%;"></div>
+                                </div>
+                            </div>
+                                                    <!-- Badge carré coloré : affiche le logo déposé dans assets/img/logos/
+                                 s'il existe (voir le scan en haut du fichier), sinon les initiales
+                                 de la compétence en repli (jamais d'emoji). La couleur de fond du
+                                 badge de repli change automatiquement selon la position grâce à
+                                 :nth-child. + petite jauge de niveau arrondie sous le nom. -->
+                            <div class="skill-slot">
+                                                                    <span class="skill-icon skill-icon--logo">
+                                        <img src="assets/img/logos/javascript.svg" alt="" width="28" height="28">
+                                    </span>
+                                                                <span>JavaScript</span>
+                                <div class="skill-gauge" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" aria-label="Niveau en JavaScript">
+                                    <div class="skill-gauge-fill" style="width: 75%;"></div>
+                                </div>
+                            </div>
+                                                    <!-- Badge carré coloré : affiche le logo déposé dans assets/img/logos/
+                                 s'il existe (voir le scan en haut du fichier), sinon les initiales
+                                 de la compétence en repli (jamais d'emoji). La couleur de fond du
+                                 badge de repli change automatiquement selon la position grâce à
+                                 :nth-child. + petite jauge de niveau arrondie sous le nom. -->
+                            <div class="skill-slot">
+                                                                    <span class="skill-icon skill-icon--logo">
+                                        <img src="assets/img/logos/figma.svg" alt="" width="28" height="28">
+                                    </span>
+                                                                <span>UX / UI · Figma</span>
+                                <div class="skill-gauge" role="progressbar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" aria-label="Niveau en UX / UI · Figma">
+                                    <div class="skill-gauge-fill" style="width: 65%;"></div>
+                                </div>
+                            </div>
+                                                    <!-- Badge carré coloré : affiche le logo déposé dans assets/img/logos/
+                                 s'il existe (voir le scan en haut du fichier), sinon les initiales
+                                 de la compétence en repli (jamais d'emoji). La couleur de fond du
+                                 badge de repli change automatiquement selon la position grâce à
+                                 :nth-child. + petite jauge de niveau arrondie sous le nom. -->
+                            <div class="skill-slot">
+                                                                    <span class="skill-icon skill-icon--logo">
+                                        <img src="assets/img/logos/nunjucks.svg" alt="" width="28" height="28">
+                                    </span>
+                                                                <span>Nunjucks</span>
+                                <div class="skill-gauge" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" aria-label="Niveau en Nunjucks">
+                                    <div class="skill-gauge-fill" style="width: 60%;"></div>
+                                </div>
+                            </div>
+                                            </div>
+                </div>
+                            <div class="card reveal skills-category">
+                    <h3 class="skills-category-title">Back-end</h3>
+                    <div class="skills-grid">
+                                                                            <!-- Badge carré coloré : affiche le logo déposé dans assets/img/logos/
+                                 s'il existe (voir le scan en haut du fichier), sinon les initiales
+                                 de la compétence en repli (jamais d'emoji). La couleur de fond du
+                                 badge de repli change automatiquement selon la position grâce à
+                                 :nth-child. + petite jauge de niveau arrondie sous le nom. -->
+                            <div class="skill-slot">
+                                                                    <span class="skill-icon skill-icon--logo">
+                                        <img src="assets/img/logos/php.svg" alt="" width="28" height="28">
+                                    </span>
+                                                                <span>PHP (MVC)</span>
+                                <div class="skill-gauge" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" aria-label="Niveau en PHP (MVC)">
+                                    <div class="skill-gauge-fill" style="width: 75%;"></div>
+                                </div>
+                            </div>
+                                                    <!-- Badge carré coloré : affiche le logo déposé dans assets/img/logos/
+                                 s'il existe (voir le scan en haut du fichier), sinon les initiales
+                                 de la compétence en repli (jamais d'emoji). La couleur de fond du
+                                 badge de repli change automatiquement selon la position grâce à
+                                 :nth-child. + petite jauge de niveau arrondie sous le nom. -->
+                            <div class="skill-slot">
+                                                                    <span class="skill-icon skill-icon--logo">
+                                        <img src="assets/img/logos/nodejs.svg" alt="" width="28" height="28">
+                                    </span>
+                                                                <span>Node.js / Express</span>
+                                <div class="skill-gauge" role="progressbar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" aria-label="Niveau en Node.js / Express">
+                                    <div class="skill-gauge-fill" style="width: 65%;"></div>
+                                </div>
+                            </div>
+                                                    <!-- Badge carré coloré : affiche le logo déposé dans assets/img/logos/
+                                 s'il existe (voir le scan en haut du fichier), sinon les initiales
+                                 de la compétence en repli (jamais d'emoji). La couleur de fond du
+                                 badge de repli change automatiquement selon la position grâce à
+                                 :nth-child. + petite jauge de niveau arrondie sous le nom. -->
+                            <div class="skill-slot">
+                                                                    <span class="skill-icon skill-icon--logo">
+                                        <img src="assets/img/logos/mysql.svg" alt="" width="28" height="28">
+                                    </span>
+                                                                <span>MySQL / MariaDB</span>
+                                <div class="skill-gauge" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" aria-label="Niveau en MySQL / MariaDB">
+                                    <div class="skill-gauge-fill" style="width: 70%;"></div>
+                                </div>
+                            </div>
+                                                    <!-- Badge carré coloré : affiche le logo déposé dans assets/img/logos/
+                                 s'il existe (voir le scan en haut du fichier), sinon les initiales
+                                 de la compétence en repli (jamais d'emoji). La couleur de fond du
+                                 badge de repli change automatiquement selon la position grâce à
+                                 :nth-child. + petite jauge de niveau arrondie sous le nom. -->
+                            <div class="skill-slot">
+                                                                    <span class="skill-icon skill-icon--logo">
+                                        <img src="assets/img/logos/python.svg" alt="" width="28" height="28">
+                                    </span>
+                                                                <span>Python</span>
+                                <div class="skill-gauge" role="progressbar" aria-valuenow="55" aria-valuemin="0" aria-valuemax="100" aria-label="Niveau en Python">
+                                    <div class="skill-gauge-fill" style="width: 55%;"></div>
+                                </div>
+                            </div>
+                                            </div>
+                </div>
+                            <div class="card reveal skills-category">
+                    <h3 class="skills-category-title">Système &amp; Réseau</h3>
+                    <div class="skills-grid">
+                                                                            <!-- Badge carré coloré : affiche le logo déposé dans assets/img/logos/
+                                 s'il existe (voir le scan en haut du fichier), sinon les initiales
+                                 de la compétence en repli (jamais d'emoji). La couleur de fond du
+                                 badge de repli change automatiquement selon la position grâce à
+                                 :nth-child. + petite jauge de niveau arrondie sous le nom. -->
+                            <div class="skill-slot">
+                                                                    <span class="skill-icon skill-icon--logo">
+                                        <img src="assets/img/logos/linux.svg" alt="" width="28" height="28">
+                                    </span>
+                                                                <span>Linux (Debian/Ubuntu)</span>
+                                <div class="skill-gauge" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" aria-label="Niveau en Linux (Debian/Ubuntu)">
+                                    <div class="skill-gauge-fill" style="width: 70%;"></div>
+                                </div>
+                            </div>
+                                                    <!-- Badge carré coloré : affiche le logo déposé dans assets/img/logos/
+                                 s'il existe (voir le scan en haut du fichier), sinon les initiales
+                                 de la compétence en repli (jamais d'emoji). La couleur de fond du
+                                 badge de repli change automatiquement selon la position grâce à
+                                 :nth-child. + petite jauge de niveau arrondie sous le nom. -->
+                            <div class="skill-slot">
+                                                                    <span class="skill-icon skill-icon--logo">
+                                        <img src="assets/img/logos/windows-server.svg" alt="" width="28" height="28">
+                                    </span>
+                                                                <span>Windows Server / AD</span>
+                                <div class="skill-gauge" role="progressbar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" aria-label="Niveau en Windows Server / AD">
+                                    <div class="skill-gauge-fill" style="width: 65%;"></div>
+                                </div>
+                            </div>
+                                                    <!-- Badge carré coloré : affiche le logo déposé dans assets/img/logos/
+                                 s'il existe (voir le scan en haut du fichier), sinon les initiales
+                                 de la compétence en repli (jamais d'emoji). La couleur de fond du
+                                 badge de repli change automatiquement selon la position grâce à
+                                 :nth-child. + petite jauge de niveau arrondie sous le nom. -->
+                            <div class="skill-slot">
+                                                                    <span class="skill-icon skill-icon--logo">
+                                        <img src="assets/img/logos/network.svg" alt="" width="28" height="28">
+                                    </span>
+                                                                <span>VLAN / DHCP / DNS / TCP-IP</span>
+                                <div class="skill-gauge" role="progressbar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" aria-label="Niveau en VLAN / DHCP / DNS / TCP-IP">
+                                    <div class="skill-gauge-fill" style="width: 65%;"></div>
+                                </div>
+                            </div>
+                                                    <!-- Badge carré coloré : affiche le logo déposé dans assets/img/logos/
+                                 s'il existe (voir le scan en haut du fichier), sinon les initiales
+                                 de la compétence en repli (jamais d'emoji). La couleur de fond du
+                                 badge de repli change automatiquement selon la position grâce à
+                                 :nth-child. + petite jauge de niveau arrondie sous le nom. -->
+                            <div class="skill-slot">
+                                                                    <span class="skill-icon skill-icon--logo">
+                                        <img src="assets/img/logos/cisco.svg" alt="" width="28" height="28">
+                                    </span>
+                                                                <span>Cisco Packet Tracer / WLC</span>
+                                <div class="skill-gauge" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" aria-label="Niveau en Cisco Packet Tracer / WLC">
+                                    <div class="skill-gauge-fill" style="width: 60%;"></div>
+                                </div>
+                            </div>
+                                                    <!-- Badge carré coloré : affiche le logo déposé dans assets/img/logos/
+                                 s'il existe (voir le scan en haut du fichier), sinon les initiales
+                                 de la compétence en repli (jamais d'emoji). La couleur de fond du
+                                 badge de repli change automatiquement selon la position grâce à
+                                 :nth-child. + petite jauge de niveau arrondie sous le nom. -->
+                            <div class="skill-slot">
+                                                                    <span class="skill-icon skill-icon--logo">
+                                        <img src="assets/img/logos/wireshark.svg" alt="" width="28" height="28">
+                                    </span>
+                                                                <span>Wireshark</span>
+                                <div class="skill-gauge" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" aria-label="Niveau en Wireshark">
+                                    <div class="skill-gauge-fill" style="width: 60%;"></div>
+                                </div>
+                            </div>
+                                                    <!-- Badge carré coloré : affiche le logo déposé dans assets/img/logos/
+                                 s'il existe (voir le scan en haut du fichier), sinon les initiales
+                                 de la compétence en repli (jamais d'emoji). La couleur de fond du
+                                 badge de repli change automatiquement selon la position grâce à
+                                 :nth-child. + petite jauge de niveau arrondie sous le nom. -->
+                            <div class="skill-slot">
+                                                                    <span class="skill-icon skill-icon--logo">
+                                        <img src="assets/img/logos/bash.svg" alt="" width="28" height="28">
+                                    </span>
+                                                                <span>Bash / PowerShell / Cron</span>
+                                <div class="skill-gauge" role="progressbar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" aria-label="Niveau en Bash / PowerShell / Cron">
+                                    <div class="skill-gauge-fill" style="width: 65%;"></div>
+                                </div>
+                            </div>
+                                            </div>
+                </div>
+                            <div class="card reveal skills-category">
+                    <h3 class="skills-category-title">Outils</h3>
+                    <div class="skills-grid">
+                                                                            <!-- Badge carré coloré : affiche le logo déposé dans assets/img/logos/
+                                 s'il existe (voir le scan en haut du fichier), sinon les initiales
+                                 de la compétence en repli (jamais d'emoji). La couleur de fond du
+                                 badge de repli change automatiquement selon la position grâce à
+                                 :nth-child. + petite jauge de niveau arrondie sous le nom. -->
+                            <div class="skill-slot">
+                                                                    <span class="skill-icon skill-icon--logo">
+                                        <img src="assets/img/logos/git.svg" alt="" width="28" height="28">
+                                    </span>
+                                                                <span>Git / GitHub / GitLab</span>
+                                <div class="skill-gauge" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" aria-label="Niveau en Git / GitHub / GitLab">
+                                    <div class="skill-gauge-fill" style="width: 75%;"></div>
+                                </div>
+                            </div>
+                                                    <!-- Badge carré coloré : affiche le logo déposé dans assets/img/logos/
+                                 s'il existe (voir le scan en haut du fichier), sinon les initiales
+                                 de la compétence en repli (jamais d'emoji). La couleur de fond du
+                                 badge de repli change automatiquement selon la position grâce à
+                                 :nth-child. + petite jauge de niveau arrondie sous le nom. -->
+                            <div class="skill-slot">
+                                                                    <span class="skill-icon skill-icon--logo">
+                                        <img src="assets/img/logos/vmware.svg" alt="" width="28" height="28">
+                                    </span>
+                                                                <span>VMware / VirtualBox</span>
+                                <div class="skill-gauge" role="progressbar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" aria-label="Niveau en VMware / VirtualBox">
+                                    <div class="skill-gauge-fill" style="width: 65%;"></div>
+                                </div>
+                            </div>
+                                                    <!-- Badge carré coloré : affiche le logo déposé dans assets/img/logos/
+                                 s'il existe (voir le scan en haut du fichier), sinon les initiales
+                                 de la compétence en repli (jamais d'emoji). La couleur de fond du
+                                 badge de repli change automatiquement selon la position grâce à
+                                 :nth-child. + petite jauge de niveau arrondie sous le nom. -->
+                            <div class="skill-slot">
+                                                                    <span class="skill-icon skill-icon--logo">
+                                        <img src="assets/img/logos/trello.svg" alt="" width="28" height="28">
+                                    </span>
+                                                                <span>Trello / Gantt</span>
+                                <div class="skill-gauge" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" aria-label="Niveau en Trello / Gantt">
+                                    <div class="skill-gauge-fill" style="width: 70%;"></div>
+                                </div>
+                            </div>
+                                            </div>
+                </div>
+                    </div>
+    </section>
+
+    <!-- ============================== PROJETS ============================== -->
+    <section id="projets">
+        <div class="container">
+            <h2 class="section-title">Projets</h2>
+
+            <!-- --- Sous-section "Développement" --- -->
+            <h3 class="projects-subtitle">
+                <svg class="projects-subtitle-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M8 6L2 12l6 6M16 6l6 6-6 6M14 4l-4 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Développement
+            </h3>
+            <div class="projects-grid">
+                                                                            <div class="card project-card reveal">
+                        <h3>Portfolio personnel</h3>
+                        <p class="project-meta">Projet individuel · 2026</p>
+                        <p>Site vitrine développé en PHP, HTML, CSS et JavaScript, avec un formulaire de contact qui enregistre les messages côté serveur.</p>
+                        <div class="project-tags">
+                                                            <span class="tag">PHP</span>
+                                                            <span class="tag">HTML</span>
+                                                            <span class="tag">CSS</span>
+                                                            <span class="tag">JS</span>
+                                                    </div>
+                        <div class="project-links">
+                            <!-- data-project-index correspond à l'index dans $projects : il permet au
+                                 script.js de retrouver les bonnes images à afficher dans la lightbox -->
+                            <button type="button" class="btn-demo" data-project-index="0">Démo</button>
+                            <a href="#">Code</a>
+                        </div>
+                    </div>
+                                                                            <div class="card project-card reveal">
+                        <h3>NutriCare+ — Suivi diabétique &amp; nutritionnel</h3>
+                        <p class="project-meta">Chef de projet · Groupe de 5 · 03/2026 → Terminé</p>
+                        <p>Application web de suivi médical personnalisé du diabète. Architecture MVC PHP/MySQL avec front controller unique et pattern PRG, conception du MLD, gestion des sessions et protection CSRF/IDOR. Pilotage d&#039;équipe : 39+ issues GitLab, roadmap, sprints Trello/Gantt. Déployée sur VM Debian LAMP, maquette Figma intégrée en HTML/CSS responsive.</p>
+                        <div class="project-tags">
+                                                            <span class="tag">PHP</span>
+                                                            <span class="tag">MySQL</span>
+                                                            <span class="tag">MVC</span>
+                                                            <span class="tag">HTML/CSS</span>
+                                                            <span class="tag">JavaScript</span>
+                                                            <span class="tag">Debian LAMP</span>
+                                                            <span class="tag">Figma</span>
+                                                    </div>
+                        <div class="project-links">
+                            <!-- data-project-index correspond à l'index dans $projects : il permet au
+                                 script.js de retrouver les bonnes images à afficher dans la lightbox -->
+                            <button type="button" class="btn-demo" data-project-index="1">Démo</button>
+                            <a href="#">Code</a>
+                        </div>
+                    </div>
+                                                                            <div class="card project-card reveal">
+                        <h3>Escape-Paws — Escape Game Web</h3>
+                        <p class="project-meta">Chef de projet · Binôme · 10/2025 → 01/2026</p>
+                        <p>Jeu web de type escape game avec serveur Node.js/Express (routing, middlewares) et interface responsive intégrant des mini-jeux interactifs en JavaScript. Architecture front/back dissociée avec intégration d&#039;API et moteur de templating Nunjucks.</p>
+                        <div class="project-tags">
+                                                            <span class="tag">Node.js</span>
+                                                            <span class="tag">Express</span>
+                                                            <span class="tag">JavaScript</span>
+                                                            <span class="tag">HTML/CSS</span>
+                                                            <span class="tag">Nunjucks</span>
+                                                    </div>
+                        <div class="project-links">
+                            <!-- data-project-index correspond à l'index dans $projects : il permet au
+                                 script.js de retrouver les bonnes images à afficher dans la lightbox -->
+                            <button type="button" class="btn-demo" data-project-index="2">Démo</button>
+                            <a href="#">Code</a>
+                        </div>
+                    </div>
+                                                                                                                                                                                            </div>
+
+            <!-- --- Sous-section "Systèmes & Réseau" --- -->
+            <h3 class="projects-subtitle">
+                <svg class="projects-subtitle-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><rect x="3" y="4" width="18" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><rect x="3" y="15" width="18" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="7" cy="6.5" r="0.8" fill="currentColor"/><circle cx="7" cy="17.5" r="0.8" fill="currentColor"/></svg>
+                Systèmes &amp; Réseau
+            </h3>
+            <div class="projects-grid">
+                                                                                                                                                                                                    <div class="card project-card reveal">
+                        <h3>TP — Infrastructure réseau Cisco</h3>
+                        <p class="project-meta">Projet individuel · ESIEA · 2025</p>
+                        <p>Conception d&#039;un réseau classe B sur Cisco Packet Tracer : configuration des VLANs, trunks inter-switch, DHCP, DNS, intégration d&#039;un WLC (Wireless LAN Controller) et de ses Access Points, diagnostic de pannes (IP, VLAN, gateway, ports en shutdown).</p>
+                        <div class="project-tags">
+                                                            <span class="tag">Cisco Packet Tracer</span>
+                                                            <span class="tag">VLAN</span>
+                                                            <span class="tag">DHCP</span>
+                                                            <span class="tag">DNS</span>
+                                                            <span class="tag">WLC</span>
+                                                    </div>
+                        <div class="project-links">
+                            <!-- Pas de bouton "Code" ici : ce sont des TP système/réseau (configurations
+                                 Cisco, Windows Server...), pas des dépôts de code à consulter. -->
+                            <button type="button" class="btn-demo" data-project-index="3">Démo</button>
+                        </div>
+                    </div>
+                                                                            <div class="card project-card reveal">
+                        <h3>TP — Administration Windows Server</h3>
+                        <p class="project-meta">Projet individuel · ESIEA · 2026</p>
+                        <p>Déploiement d&#039;une infrastructure virtualisée (Windows Server + Client), configuration Active Directory (domaine, OUs, groupes, utilisateurs), gestion des permissions NTFS différenciées, mise en place de partages réseau et lecteurs mappés (Z:, Y:).</p>
+                        <div class="project-tags">
+                                                            <span class="tag">Windows Server 2022</span>
+                                                            <span class="tag">Active Directory</span>
+                                                            <span class="tag">NTFS</span>
+                                                            <span class="tag">VMware</span>
+                                                    </div>
+                        <div class="project-links">
+                            <!-- Pas de bouton "Code" ici : ce sont des TP système/réseau (configurations
+                                 Cisco, Windows Server...), pas des dépôts de code à consulter. -->
+                            <button type="button" class="btn-demo" data-project-index="4">Démo</button>
+                        </div>
+                    </div>
+                                                                            <div class="card project-card reveal">
+                        <h3>TP — Analyse réseau Wireshark</h3>
+                        <p class="project-meta">Projet individuel · ESIEA · 2026</p>
+                        <p>Capture et analyse de trames Ethernet et datagrammes IP, identification des protocoles TCP/UDP/ICMP et correspondance avec le modèle OSI/TCP-IP, mise en réseau de VMs (Host-only / NAT) avec filtrage de trafic ciblé.</p>
+                        <div class="project-tags">
+                                                            <span class="tag">Wireshark</span>
+                                                            <span class="tag">TCP/IP</span>
+                                                            <span class="tag">OSI</span>
+                                                            <span class="tag">VMware</span>
+                                                    </div>
+                        <div class="project-links">
+                            <!-- Pas de bouton "Code" ici : ce sont des TP système/réseau (configurations
+                                 Cisco, Windows Server...), pas des dépôts de code à consulter. -->
+                            <button type="button" class="btn-demo" data-project-index="5">Démo</button>
+                        </div>
+                    </div>
+                                                                            <div class="card project-card reveal">
+                        <h3>TP — Automatisation Linux (Bash &amp; Cron)</h3>
+                        <p class="project-meta">Binôme · ESIEA · 2026</p>
+                        <p>Scripts Bash interactifs (création d&#039;utilisateurs, nettoyage de /tmp/), planification de tâches via cron (mardis et samedis à 12h00 et 14h00), gestion des droits et automatisation de la maintenance système.</p>
+                        <div class="project-tags">
+                                                            <span class="tag">Bash</span>
+                                                            <span class="tag">Cron</span>
+                                                            <span class="tag">Linux</span>
+                                                    </div>
+                        <div class="project-links">
+                            <!-- Pas de bouton "Code" ici : ce sont des TP système/réseau (configurations
+                                 Cisco, Windows Server...), pas des dépôts de code à consulter. -->
+                            <button type="button" class="btn-demo" data-project-index="6">Démo</button>
+                        </div>
+                    </div>
+                            </div>
+        </div>
+    </section>
+
+    <!-- ============================== LIGHTBOX (galerie plein écran) ==============================
+         Fenêtre modale cachée par défaut (attribut "hidden"). Le bouton "Démo" d'un projet
+         l'ouvre via script.js et y affiche les images correspondantes une par une.
+         role="dialog" + aria-modal="true" : indique aux lecteurs d'écran qu'il s'agit d'une
+         fenêtre modale qui doit capter toute l'attention (voir le piège de focus dans script.js).
+         aria-labelledby pointe vers le titre du projet affiché, utilisé comme "nom" de la fenêtre. -->
+    <div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-labelledby="lightbox-title" hidden>
+        <div class="lightbox-panel card">
+            <div class="lightbox-header">
+                <span id="lightbox-title"></span>
+                <button type="button" class="lightbox-close" aria-label="Fermer">✕</button>
+            </div>
+            <div class="lightbox-body">
+                <button type="button" class="lightbox-nav lightbox-prev" aria-label="Image précédente">◀</button>
+                <!-- L'attribut alt est rempli dynamiquement par script.js (titre du projet +
+                     numéro d'image) car son contenu dépend de l'image actuellement affichée -->
+                <img id="lightbox-image" src="" alt="">
+                <!-- Message affiché si le projet n'a pas encore d'images dans son dossier -->
+                <p id="lightbox-empty" class="lightbox-empty" hidden>Images à venir pour ce projet.</p>
+                <button type="button" class="lightbox-nav lightbox-next" aria-label="Image suivante">▶</button>
+            </div>
+            <!-- aria-live="polite" : quand le texte change (ex: "2 / 5"), les lecteurs d'écran
+                 l'annoncent automatiquement sans que l'utilisateur ait à redéplacer son focus -->
+            <p id="lightbox-counter" class="lightbox-counter" aria-live="polite"></p>
+        </div>
+    </div>
+
+    <!-- Bloc de données JSON invisible (type="application/json" = jamais exécuté ni affiché).
+         PHP y écrit le titre + la liste d'images de CHAQUE projet ; script.js lit ensuite ce
+         JSON avec JSON.parse() pour savoir quoi afficher dans la lightbox. C'est le "pont"
+         entre les données PHP (côté serveur) et le JavaScript (côté navigateur). -->
+    <script id="projects-data" type="application/json">[{"title":"Portfolio personnel","images":[]},{"title":"NutriCare+ \u2014 Suivi diab\u00e9tique & nutritionnel","images":["assets/img/projects/nutricare/connect.png","assets/img/projects/nutricare/gly.png","assets/img/projects/nutricare/mde.png","assets/img/projects/nutricare/nutr.png","assets/img/projects/nutricare/pro.png","assets/img/projects/nutricare/pro2.png","assets/img/projects/nutricare/rep.png","assets/img/projects/nutricare/sta.png","assets/img/projects/nutricare/tab.png"]},{"title":"Escape-Paws \u2014 Escape Game Web","images":["assets/img/projects/escape-paws/acceuil.png","assets/img/projects/escape-paws/bur.png","assets/img/projects/escape-paws/fec.png","assets/img/projects/escape-paws/fin.png","assets/img/projects/escape-paws/flapp.png","assets/img/projects/escape-paws/grid.gif","assets/img/projects/escape-paws/int.gif","assets/img/projects/escape-paws/intro.png","assets/img/projects/escape-paws/morp.png","assets/img/projects/escape-paws/plan.png","assets/img/projects/escape-paws/puzz.png","assets/img/projects/escape-paws/snake.png"]},{"title":"TP \u2014 Infrastructure r\u00e9seau Cisco","images":[]},{"title":"TP \u2014 Administration Windows Server","images":[]},{"title":"TP \u2014 Analyse r\u00e9seau Wireshark","images":[]},{"title":"TP \u2014 Automatisation Linux (Bash & Cron)","images":[]}]</script>
+
+    <!-- ============================== CONTACT ============================== -->
+    <section id="contact">
+        <div class="container">
+            <h2 class="section-title">Contact</h2>
+
+                        
+            <div class="contact-grid">
+                <!-- Bloc coordonnées : affiché à gauche (voir .contact-grid en CSS).
+                     Les icônes sont de petits SVG en ligne (currentColor, donc recolorables
+                     par le CSS, y compris en mode contraste élevé — contrairement à des
+                     emojis qui gardent toujours leurs propres couleurs) et marquées
+                     aria-hidden : le texte/lien qui suit porte déjà tout le sens utile. -->
+                <div class="card contact-info reveal">
+                    <h3>Coordonnées</h3>
+                    <ul class="contact-list">
+                        <!-- str_replace supprime les espaces du numéro pour que le lien tel: fonctionne -->
+                        <li>
+                            <svg class="contact-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 4h4l2 5-2.5 1.5a11 11 0 005 5L14 13l5 2v4a2 2 0 01-2 2A16 16 0 014 6a2 2 0 012-2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+                            <a href="tel:+33758318859">+33 7 58 31 88 59</a>
+                        </li>
+                        <li>
+                            <svg class="contact-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 6l9 7 9-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+                            <a href="mailto:agbehonouaesther@gmail.com">agbehonouaesther@gmail.com</a>
+                        </li>
+                        <li>
+                            <svg class="contact-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M9 15l6-6M10 8l1-1a3.5 3.5 0 015 5l-1 1M14 16l-1 1a3.5 3.5 0 01-5-5l1-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            <a href="https://linkedin.com/in/sara-agbehonou" target="_blank" rel="noopener">LinkedIn <span class="sr-only">(ouvre dans un nouvel onglet)</span></a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Version statique (GitHub Pages) : pas de serveur PHP ici, donc pas de
+                     contact.php. Le formulaire est intercepté par docs/js/script.js qui
+                     construit un lien mailto: à partir des champs remplis. L'attribut
+                     action ci-dessous n'est qu'un repli si JavaScript est désactivé. -->
+                <div class="card contact-panel reveal">
+                    <form id="contact-form" action="mailto:agbehonouaesther@gmail.com" method="GET" novalidate>
+                        <div class="form-row">
+                            <label for="name">Nom</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-row">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-row">
+                            <label for="message">Message</label>
+                            <textarea id="message" name="message" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Envoyer</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    </main>
+
+    <footer>
+        <!-- date('Y') affiche automatiquement l'année en cours, pas besoin de la changer chaque année -->
+        <p>&copy; 2026 Sara Agbehonou — Fait avec PHP, HTML, CSS &amp; JS</p>
+    </footer>
+
+    <!-- Chargé en fin de body pour que le HTML soit déjà présent quand le JS s'exécute -->
+    <script src="js/script.js"></script>
+</body>
+</html>
