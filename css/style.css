@@ -1,10 +1,10 @@
 /* =============================================================================
    STYLE.CSS — Portfolio de Sara Agbehonou
-   Thème visuel "chaleureux / illustré" : lettrage rond et bulle pour les gros
-   titres, script manuscrit pour les touches personnelles ("Salut, moi c'est
-   Sara !"), cartes crème arrondies avec ombre douce, badges de compétences
-   colorés façon icônes d'application, formes organiques ("blobs") en CSS pur
-   pour évoquer un décor illustré sans utiliser de vraie image peinte.
+   Thème visuel "comic / street-art" façon affiche de super-héros : titres
+   Bangers (police bande dessinée), étiquettes Space Mono (façon plan
+   technique), palette rouge/marine/noir/blanc, cartes façon case de BD
+   (bordure noire épaisse + ombre portée nette), traits de toile d'araignée
+   décoratifs en CSS pur.
    Le fichier est organisé section par section, dans le même ordre que les
    sections HTML de porte_fo.php pour être facile à suivre.
    ============================================================================= */
@@ -15,36 +15,19 @@
    si on veut ajuster la palette du thème.
    ----------------------------------------------------------------------- */
 :root {
-  /* --- Verts "forêt", utilisés pour les fonds et les accents --- */
-  --forest-dark: #24381f;    /* Vert très sombre (haut du dégradé de fond) */
-  --forest: #3f6b34;         /* Vert forêt principal (fond, boutons primaires) */
-  --forest-light: #7fa65f;   /* Vert clair (survols, petits accents) */
+  --red: #e0202c;       /* Rouge principal (titres, boutons, accents) */
+  --red-dark: #a11420;  /* Rouge foncé (survols, ombres de boutons rouges) */
+  --navy: #10192b;      /* Bleu marine très sombre (fond de page) */
+  --navy-light: #1c2c4a; /* Bleu marine plus clair (dégradé de fond, accents) */
+  --black: #050608;     /* Noir quasi pur (bordures "BD", texte fort) */
+  --white: #f5f5f5;     /* Blanc cassé (texte sur fond sombre) */
+  --paper: #eceef1;     /* Fond "papier" des cartes (blanc légèrement froid) */
+  --paper-dark: #d8dbe0; /* Fond papier légèrement plus soutenu (survols) */
+  --ink: #14161a;       /* Texte principal sur les cartes claires */
 
-  /* --- Crème / brun, pour les cartes et le texte chaleureux --- */
-  --cream: #faf6ec;          /* Fond des cartes (façon papier crème) */
-  --cream-dark: #efe6d3;     /* Fond légèrement plus soutenu (survols de cartes) */
-  --brown: #6b4226;          /* Brun chaud (texte manuscrit, accents) */
-  /* Brun plus clair, utilisé pour du texte (dates, méta-infos) et pour un fond
-     de bouton au survol. Volontairement plus sombre que sa première version
-     (#9c6b45) : ce ton-ci garde un contraste suffisant (WCAG AA, ratio >= 4.5:1)
-     à la fois en texte sur fond crème et en fond sous du texte blanc. */
-  --brown-light: #8a5a3a;
-
-  --text-dark: #2e2a22;      /* Texte principal sur fond clair/crème */
-  --text-light: #faf6ec;     /* Texte principal sur fond vert sombre */
-
-  /* --- Couleurs "badges" façon icônes d'application, pour les compétences --- */
-  --badge-1: #3d5afe; /* bleu */
-  --badge-2: #ff6d3f; /* orange */
-  --badge-3: #8e5cf7; /* violet */
-  --badge-4: #00b0a6; /* turquoise */
-  --badge-5: #ff4d6d; /* rose/rouge */
-  --badge-6: #ffb703; /* jaune/or */
-
-  /* --- Polices --- */
-  --font-display: "Baloo 2", sans-serif; /* Gros titres "bulle" arrondis */
-  --font-script: "Caveat", cursive;      /* Touches manuscrites (légendes, salutation) */
-  --font-body: "Quicksand", sans-serif;  /* Texte courant, boutons, formulaire */
+  --font-display: "Bangers", cursive;     /* Gros titres façon bande dessinée */
+  --font-mono: "Space Mono", monospace;   /* Étiquettes techniques (dates, tags, badges) */
+  --font-body: "Inter", sans-serif;       /* Texte courant, boutons, formulaire */
 }
 
 /* -----------------------------------------------------------------------
@@ -64,26 +47,24 @@ body {
   position: relative; /* Nécessaire pour que le grain ::before ci-dessous s'y positionne */
   font-family: var(--font-body);
   font-size: 0.9375rem;
-  line-height: 1.7;
-  color: var(--text-light);
-  /* Dégradé de fond fixe façon canopée de forêt (sombre en haut, plus clair
-     vers le bas), rappelant l'ambiance boisée de la référence sans reproduire
-     une illustration peinte. */
-  background: linear-gradient(180deg, var(--forest-dark) 0%, var(--forest) 55%, #4d7a3f 100%);
+  line-height: 1.65;
+  color: var(--white);
+  /* Dégradé de fond marine sombre, façon nuit urbaine */
+  background: linear-gradient(160deg, var(--navy) 0%, var(--navy-light) 55%, var(--navy) 100%);
   background-attachment: fixed;
   min-height: 100vh;
-  overflow-x: hidden; /* Empêche les formes décoratives (blobs) de créer une barre de défilement horizontale */
+  overflow-x: hidden; /* Empêche les traits décoratifs de créer une barre de défilement horizontale */
 }
 
-/* Grain de papier très subtil sur tout le fond, pour casser les aplats de
-   couleur et donner un léger effet "texture illustrée" sans image réelle. */
+/* Léger effet demi-teinte (halftone) façon impression BD, très discret, pour
+   casser les aplats de couleur sans nuire à la lisibilité. */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   background-image: radial-gradient(rgba(255, 255, 255, 0.5) 1px, transparent 1px);
-  background-size: 3px 3px;
-  opacity: 0.04;
+  background-size: 4px 4px;
+  opacity: 0.05;
   mix-blend-mode: overlay;
   pointer-events: none;
   z-index: 0;
@@ -132,13 +113,13 @@ ul {
   top: -100px;
   left: 1rem;
   z-index: 1000;
-  background: var(--cream);
-  color: var(--text-dark);
+  background: var(--white);
+  color: var(--ink);
   font-family: var(--font-body);
   font-weight: 700;
   padding: 0.8rem 1.2rem;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  border: 3px solid var(--black);
   transition: top 0.2s ease;
 }
 
@@ -155,7 +136,7 @@ button:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
 [tabindex]:focus-visible {
-  outline: 3px solid var(--badge-6);
+  outline: 3px solid var(--red);
   outline-offset: 3px;
 }
 
@@ -188,61 +169,63 @@ textarea:focus-visible,
 }
 
 /* =============================================================================
-   CARTE (remplace les anciens panneaux "pixel-panel")
-   Fond crème, coins arrondis, ombre douce : la brique de base réutilisée pour
-   à peu près tous les blocs de contenu du site (à propos, formation,
-   compétences, projets, contact...).
+   CARTE — façon case de bande dessinée : fond papier clair, bordure noire
+   épaisse, ombre portée nette (pas de flou) façon impression décalée.
+   Réutilisée pour à peu près tous les blocs de contenu du site.
    ============================================================================= */
 .card {
-  background: var(--cream);
-  color: var(--text-dark);
-  border-radius: 28px;
+  background: var(--paper);
+  color: var(--ink);
+  border: 3px solid var(--black);
+  border-radius: 10px;
   padding: 1.8rem;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  box-shadow: 8px 8px 0 var(--black);
 }
 
 /* =============================================================================
-   BOUTONS — pilules arrondies avec ombre douce et léger effet de survol
+   BOUTONS — façon bouton d'affiche BD : bordure noire épaisse, ombre nette,
+   effet "pressé" au clic (le bouton se déplace dans son ombre).
    ============================================================================= */
 .btn {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   font-family: var(--font-body);
   font-weight: 700;
   font-size: 0.875rem;
-  color: var(--text-light);
-  background: var(--forest);
-  border: none;
-  border-radius: 999px; /* Valeur énorme = coins toujours parfaitement arrondis quelle que soit la taille du bouton */
-  padding: 0.9rem 1.8rem;
+  color: var(--white);
+  background: var(--navy-light);
+  border: 3px solid var(--black);
+  border-radius: 8px;
+  padding: 0.85rem 1.6rem;
   cursor: pointer;
-  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2); /* Petite "épaisseur" façon bouton 3D doux, sans relief pixel */
-  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  box-shadow: 5px 5px 0 var(--black);
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.15s ease;
 }
 
 .btn:hover {
-  /* --forest-dark plutôt que --forest-light : le vert clair, une fois testé,
-     n'offre pas assez de contraste avec le texte blanc du bouton (ratio
-     ~2.8:1, sous le minimum WCAG AA de 4.5:1). --forest-dark répond largement
-     au critère tout en gardant un effet de survol perceptible. */
-  background: var(--forest-dark);
-  transform: translateY(-2px);
+  background: var(--navy);
 }
 
 .btn:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+  transform: translate(4px, 4px);
+  box-shadow: 1px 1px 0 var(--black);
 }
 
 .btn-primary {
-  background: var(--brown);
+  background: var(--red);
 }
 
 .btn-primary:hover {
-  background: var(--brown-light);
+  background: var(--red-dark);
+}
+
+.btn-icon {
+  flex-shrink: 0;
 }
 
 /* =============================================================================
-   NAVBAR — pilule flottante crème, sticky en haut de page
+   NAVBAR — pilule blanche flottante, sticky en haut de page
    ============================================================================= */
 .navbar {
   position: sticky;
@@ -254,18 +237,19 @@ textarea:focus-visible,
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: var(--cream);
-  color: var(--text-dark);
+  background: var(--paper);
+  color: var(--ink);
+  border: 3px solid var(--black);
   border-radius: 999px;
-  padding: 0.7rem 1.5rem;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  padding: 0.6rem 1.5rem;
+  box-shadow: 6px 6px 0 var(--black);
 }
 
 .logo {
   font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1.125rem;
-  color: var(--forest);
+  font-size: 1.375rem;
+  letter-spacing: 1px;
+  color: var(--red);
 }
 
 .nav-links {
@@ -280,7 +264,7 @@ textarea:focus-visible,
   font-family: var(--font-body);
   font-weight: 600;
   font-size: 0.8125rem;
-  color: var(--text-dark);
+  color: var(--ink);
   transition: background 0.15s ease, color 0.15s ease;
 }
 
@@ -288,17 +272,17 @@ textarea:focus-visible,
    actuellement visible à l'écran (IntersectionObserver, voir script.js) */
 .nav-links a:hover,
 .nav-links a.active {
-  background: var(--forest);
-  color: var(--text-light);
+  background: var(--red);
+  color: var(--white);
 }
 
 /* Bouton "hamburger" (☰), caché par défaut, affiché en mobile (media query en fin de fichier) */
 .nav-toggle {
   display: none;
-  background: var(--forest);
+  background: var(--navy);
   border: none;
   border-radius: 999px;
-  color: var(--text-light);
+  color: var(--white);
   font-size: 1rem;
   width: 36px;
   height: 36px;
@@ -316,12 +300,12 @@ textarea:focus-visible,
 }
 
 /* -----------------------------------------------------------------------
-   FORMES ORGANIQUES DÉCORATIVES ("blobs")
-   Remplacent les cubes Minecraft de l'ancien thème : des taches de couleur
-   aux bords irréguliers (border-radius asymétrique), qui flottent doucement,
-   pour évoquer un décor illustré (feuillage stylisé) sans image réelle.
+   TRAITS DE TOILE D'ARAIGNÉE DÉCORATIFS
+   Remplacent les formes organiques de l'ancien thème : de simples traits
+   fins (des <div> très plats, tournés grâce à "rotate") qui rayonnent
+   depuis un coin, façon fils de toile, en pur CSS.
    ----------------------------------------------------------------------- */
-.blob-field {
+.web-field {
   position: absolute;
   inset: 0;
   pointer-events: none;
@@ -329,115 +313,92 @@ textarea:focus-visible,
   z-index: 0;
 }
 
-.blob {
+.web-line {
   position: absolute;
-  border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%; /* 8 valeurs = une forme "patatoïde" asymétrique */
-  opacity: 0.5;
-  filter: blur(1px);
-  animation: float 7s ease-in-out infinite;
+  top: -10%;
+  right: -10%;
+  width: 160%;
+  height: 1px;
+  background: rgba(245, 245, 245, 0.18);
+  transform-origin: 100% 0%;
 }
 
-.blob--1 {
-  width: 220px;
-  height: 220px;
-  top: -60px;
-  left: 4%;
-  background: var(--forest-light);
-  animation-delay: 0s;
+.web-line--1 {
+  transform: rotate(100deg);
 }
-
-.blob--2 {
-  width: 160px;
-  height: 160px;
-  top: 55%;
-  left: 88%;
-  background: var(--brown-light);
-  animation-delay: 1.2s;
+.web-line--2 {
+  transform: rotate(120deg);
 }
-
-.blob--3 {
-  width: 130px;
-  height: 130px;
-  top: 10%;
-  left: 82%;
-  background: var(--badge-6);
-  opacity: 0.35;
-  animation-delay: 2.4s;
+.web-line--3 {
+  transform: rotate(140deg);
 }
-
-.blob--4 {
-  width: 180px;
-  height: 180px;
-  top: 70%;
-  left: 6%;
-  background: var(--forest-light);
-  opacity: 0.4;
-  animation-delay: 3.2s;
-}
-
-/* Flottement vertical doux, en boucle infinie */
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0) scale(1);
-  }
-  50% {
-    transform: translateY(-16px) scale(1.03);
-  }
+.web-line--4 {
+  transform: rotate(160deg);
 }
 
 /* Petite ligne au-dessus du grand titre : nom + rôle, façon "cartouche" d'affiche */
 .hero-eyebrow {
-  font-family: var(--font-body);
+  font-family: var(--font-mono);
   font-weight: 700;
   font-size: 0.8125rem;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: var(--cream);
-  opacity: 0.85;
+  color: var(--white);
+  opacity: 0.8;
   margin-bottom: 1rem;
+  position: relative;
+  z-index: 1;
 }
 
-/* Grand titre "bulle" : police ronde et épaisse, contour marqué, pas de dégradé
-   agressif (contrairement à l'ancien thème graffiti) pour rester chaleureux et lisible */
+/* Grand titre façon logo de comic : rouge, contour noir épais, lettres
+   espacées et légèrement inclinées pour un effet plus dynamique */
 .hero-title {
   font-family: var(--font-display);
-  font-weight: 800;
-  font-size: clamp(2.625rem, 9vw, 5.75rem);
-  line-height: 0.95;
-  color: var(--cream);
-  -webkit-text-stroke: 3px var(--forest-dark);
-  text-shadow: 4px 4px 0 var(--forest-dark);
-  margin-bottom: 0.8rem;
+  font-weight: 400;
+  font-size: clamp(3.375rem, 9vw, 6.25rem);
+  line-height: 0.9;
+  letter-spacing: 2px;
+  color: var(--red);
+  -webkit-text-stroke: 3px var(--black);
+  text-shadow: 5px 5px 0 var(--black);
+  transform: rotate(-2deg);
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 1;
 }
 
-/* Petit badge "2026" façon étiquette d'affiche, sous le grand titre */
+/* Petit badge "2026" façon étiquette technique, sous le grand titre */
 .hero-year {
   display: inline-block;
-  font-family: var(--font-display);
+  font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 1rem;
-  background: var(--brown);
-  color: var(--cream);
-  padding: 0.35rem 1.2rem;
-  border-radius: 999px;
+  font-size: 0.875rem;
+  background: var(--black);
+  color: var(--white);
+  border: 2px solid var(--white);
+  padding: 0.3rem 1rem;
+  border-radius: 4px;
   margin-bottom: 1.5rem;
-  transform: rotate(-2deg); /* Léger effet "étiquette collée un peu de travers" */
+  position: relative;
+  z-index: 1;
 }
 
 .hero-subtitle {
   font-size: 0.9375rem;
-  color: var(--cream);
+  color: var(--white);
   max-width: 560px;
   margin: 0 auto 0.6rem;
+  position: relative;
+  z-index: 1;
 }
 
 /* Sous-titre secondaire (mention "recherche d'alternance") */
 .hero-subtitle--small {
-  font-family: var(--font-script);
-  font-size: 1.375rem;
+  font-family: var(--font-mono);
   font-weight: 700;
-  color: var(--badge-6);
+  font-size: 0.9375rem;
+  letter-spacing: 0.5px;
+  color: var(--red);
   margin-bottom: 1.8rem;
 }
 
@@ -455,13 +416,12 @@ textarea:focus-visible,
 }
 
 .btn-cv {
-  background: var(--cream);
-  color: var(--text-dark);
-  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.15);
+  background: var(--paper);
+  color: var(--ink);
 }
 
 .btn-cv:hover {
-  background: var(--cream-dark);
+  background: var(--paper-dark);
 }
 
 /* =============================================================================
@@ -475,11 +435,13 @@ section {
 
 .section-title {
   font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1.875rem;
+  font-weight: 400;
+  font-size: 2rem;
+  letter-spacing: 1px;
   text-align: center;
-  color: var(--cream);
-  text-shadow: 3px 3px 0 var(--forest-dark);
+  color: var(--white);
+  -webkit-text-stroke: 1.5px var(--black);
+  text-shadow: 3px 3px 0 var(--black);
   margin-bottom: 2.2rem;
 }
 
@@ -487,72 +449,25 @@ section {
    SECTION "À PROPOS"
    ============================================================================= */
 .about-grid {
-  display: grid;
-  grid-template-columns: 220px 1fr; /* Colonne photo étroite + colonne texte qui prend le reste */
-  gap: 2.5rem;
-  align-items: center;
-}
-
-/* -----------------------------------------------------------------------
-   AVATAR ROND avec légende manuscrite ("C'est moi !"), à la place d'une
-   vraie photo (aucune photo fournie) : cercle avec les initiales, entouré
-   d'un trait pointillé, et une petite flèche + texte inclinés à côté,
-   comme dans la référence "That's me!".
-   ----------------------------------------------------------------------- */
-.avatar-wrap {
-  position: relative;
-  width: 180px;
-  margin: 0 auto;
-}
-
-.avatar-circle {
-  width: 180px;
-  height: 180px;
-  border-radius: 50%;
-  background: var(--forest);
-  border: 4px dashed var(--brown-light);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-display);
-  font-size: 3.5rem;
-  font-weight: 700;
-  color: var(--cream);
-}
-
-/* Légende manuscrite inclinée, positionnée en bas à gauche du cercle */
-.avatar-caption {
-  position: absolute;
-  bottom: -0.5rem;
-  left: -2.2rem;
-  font-family: var(--font-script);
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--badge-6);
-  transform: rotate(-8deg);
-  white-space: nowrap;
-}
-
-.about-text {
-  color: var(--text-dark);
-}
-
-/* Grande salutation manuscrite, façon "Call me Ira! Hi!" de la référence */
-.about-greeting {
-  font-family: var(--font-script);
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: var(--brown);
-  margin-bottom: 0.8rem;
-  line-height: 1;
+  display: block;
 }
 
 .about-text p {
   margin-bottom: 1rem;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
 }
 
-/* Étiquettes de "soft skills", pilules colorées façon post-it */
+/* Grande salutation, en rouge façon titre de comic secondaire */
+.about-greeting {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.75rem;
+  letter-spacing: 1px;
+  color: var(--red);
+  margin-bottom: 0.8rem;
+}
+
+/* Étiquettes de "soft skills", pilules façon tag technique */
 .about-tags {
   display: flex;
   gap: 0.5rem;
@@ -560,16 +475,36 @@ section {
   margin-top: 1.2rem;
 }
 
-@media (max-width: 640px) {
-  /* Sur mobile, la photo passe au-dessus du texte plutôt qu'à côté */
-  .about-grid {
-    grid-template-columns: 1fr;
-    text-align: center;
-  }
+/* -----------------------------------------------------------------------
+   CENTRES D'INTÉRÊT — titre en gras façon "Mes Passions" (référence visuelle
+   fournie), et étiquettes claires (fond blanc, bordure fine, ombre douce)
+   plutôt que les pilules noires réutilisées ailleurs sur le site.
+   ----------------------------------------------------------------------- */
+.interests-title {
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 1.375rem;
+  color: var(--ink);
+  margin-top: 1.4rem;
+  margin-bottom: 0.8rem;
+}
 
-  .avatar-wrap {
-    margin-bottom: 1rem;
-  }
+.interest-tags {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.interest-tag {
+  background: #ffffff;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.875rem;
+  padding: 0.7rem 1.4rem;
+  border-radius: 10px;
+  border: 1.5px solid rgba(20, 22, 26, 0.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 /* =============================================================================
@@ -582,8 +517,7 @@ section {
 }
 
 .timeline-item {
-  border-left: 5px solid var(--forest);
-  border-radius: 4px;
+  border-left: 4px solid var(--red);
   padding-left: 1.1rem;
 }
 
@@ -593,16 +527,14 @@ section {
   justify-content: space-between;
   gap: 0.5rem;
   margin-bottom: 0.3rem;
-  font-family: var(--font-display);
   font-size: 0.9375rem;
-  color: var(--brown);
 }
 
 .timeline-period {
-  font-family: var(--font-body);
-  color: var(--brown-light);
+  font-family: var(--font-mono);
+  color: var(--ink);
+  opacity: 0.7;
   font-size: 0.75rem;
-  font-weight: 700;
 }
 
 .timeline-item p {
@@ -611,24 +543,25 @@ section {
 }
 
 /* =============================================================================
-   SECTION "COMPÉTENCES" — badges colorés façon icônes d'application
+   SECTION "COMPÉTENCES"
    ============================================================================= */
 .skills-category {
   margin-bottom: 1.5rem;
 }
 
 .skills-category-title {
-  font-family: var(--font-script);
+  font-family: var(--font-display);
+  font-weight: 400;
   font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--brown);
+  letter-spacing: 1px;
+  color: var(--red);
   margin-bottom: 1rem;
 }
 
 .skills-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-  gap: 1rem;
+  gap: 1.2rem;
 }
 
 .skill-slot {
@@ -639,111 +572,90 @@ section {
   text-align: center;
 }
 
-/* Badge carré arrondi coloré, comme les icônes de logiciels de la référence
-   (Photoshop, Illustrator...). La couleur de fond change automatiquement
-   selon la position du badge grâce à :nth-child, pour un rendu varié sans
-   avoir à définir une couleur par compétence dans le PHP. */
+/* Badge carré : affiche soit le logo fourni (assets/img/logos/<slug>.*),
+   soit des initiales de repli sur fond noir (voir la logique PHP en haut de
+   porte_fo.php). Jamais d'emoji : les couleurs restent donc entièrement
+   maîtrisées par ce CSS, y compris en mode contraste élevé plus bas. */
 .skill-icon {
   width: 56px;
   height: 56px;
-  border-radius: 16px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.625rem;
-  color: #fff;
-  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.15);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.9375rem;
+  background: var(--black);
+  color: var(--white);
+  border: 2px solid var(--black);
 }
 
-.skill-slot:nth-child(6n + 1) .skill-icon {
-  background: var(--badge-1);
-}
-.skill-slot:nth-child(6n + 2) .skill-icon {
-  background: var(--badge-2);
-}
-.skill-slot:nth-child(6n + 3) .skill-icon {
-  background: var(--badge-3);
-}
-.skill-slot:nth-child(6n + 4) .skill-icon {
-  background: var(--badge-4);
-}
-.skill-slot:nth-child(6n + 5) .skill-icon {
-  background: var(--badge-5);
-}
-.skill-slot:nth-child(6n + 6) .skill-icon {
-  background: var(--badge-6);
+/* Logo image fourni : fond blanc pour que les logos avec fond transparent
+   restent lisibles quelle que soit leur couleur dominante */
+.skill-icon--logo {
+  background: #ffffff;
 }
 
-/* Nom de la compétence : on cible le <span> qui suit directement l'icône
-   (plutôt que ":last-child", qui ne fonctionnerait plus maintenant que la
-   jauge .skill-gauge est ajoutée après et devient le vrai dernier enfant) */
+.skill-icon--logo img {
+  max-width: 28px;
+  max-height: 28px;
+  object-fit: contain;
+}
+
 .skill-icon + span {
   font-size: 0.6875rem;
   font-weight: 700;
-  color: var(--text-dark);
+  /* --ink (texte sombre), pas --white : ce nom de compétence est affiché à
+     l'intérieur d'une .card à fond clair, pas sur le fond marine de la page */
+  color: var(--ink);
 }
 
 /* -----------------------------------------------------------------------
-   JAUGE DE NIVEAU — petite barre arrondie sous le nom de la compétence,
-   remplace l'ancienne barre "XP" du thème pixel avec un rendu plus doux
-   (coins arrondis, couleur pleine plutôt que rayures). La largeur du
-   remplissage vient directement du champ "level" du tableau PHP.
+   JAUGE DE NIVEAU — petite barre sous le nom de la compétence. Fond clair
+   fixe + remplissage rouge : contrairement à l'ancienne version avec des
+   couleurs de remplissage variables selon la position, cette version reste
+   lisible dans tous les modes (y compris contraste élevé) sans exception à
+   gérer au cas par cas.
    ----------------------------------------------------------------------- */
 .skill-gauge {
   width: 100%;
   height: 8px;
-  background: var(--cream-dark);
+  background: var(--paper);
+  border: 1px solid var(--black);
   border-radius: 999px;
   overflow: hidden; /* Garde le remplissage à l'intérieur des coins arrondis même à 100% */
-  /* Fin liseré sombre : certaines couleurs de remplissage (le jaune --badge-6
-     en particulier) se distinguent mal du fond crème du rail sans ce contour,
-     ce qui rendrait le niveau difficile à percevoir pour une personne
-     malvoyante. Le liseré garantit que la jauge reste lisible quelle que
-     soit la couleur du remplissage. */
-  box-shadow: inset 0 0 0 1px rgba(46, 42, 34, 0.3);
 }
 
 .skill-gauge-fill {
   height: 100%;
-  background: var(--forest);
-  border-radius: 999px;
-}
-
-/* La couleur de la jauge suit celle du badge de la même compétence, grâce au
-   même cycle :nth-child(6n+1..6) utilisé pour .skill-icon juste au-dessus */
-.skill-slot:nth-child(6n + 1) .skill-gauge-fill {
-  background: var(--badge-1);
-}
-.skill-slot:nth-child(6n + 2) .skill-gauge-fill {
-  background: var(--badge-2);
-}
-.skill-slot:nth-child(6n + 3) .skill-gauge-fill {
-  background: var(--badge-3);
-}
-.skill-slot:nth-child(6n + 4) .skill-gauge-fill {
-  background: var(--badge-4);
-}
-.skill-slot:nth-child(6n + 5) .skill-gauge-fill {
-  background: var(--badge-5);
-}
-.skill-slot:nth-child(6n + 6) .skill-gauge-fill {
-  background: var(--badge-6);
+  background: var(--red);
 }
 
 /* =============================================================================
    SECTION "PROJETS"
    ============================================================================= */
 .projects-subtitle {
-  font-family: var(--font-script);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-display);
+  font-weight: 400;
   font-size: 1.625rem;
-  font-weight: 700;
-  color: var(--cream);
-  text-shadow: 2px 2px 0 var(--forest-dark);
+  letter-spacing: 1px;
+  color: var(--white);
+  -webkit-text-stroke: 1px var(--black);
+  text-shadow: 2px 2px 0 var(--black);
   margin: 2rem 0 1rem;
 }
 
 .projects-subtitle:first-of-type {
   margin-top: 0;
+}
+
+.projects-subtitle-icon {
+  flex-shrink: 0;
+  color: var(--red);
 }
 
 .projects-grid {
@@ -753,9 +665,10 @@ section {
 }
 
 .project-meta {
-  font-size: 0.625rem;
-  font-weight: 700;
-  color: var(--brown-light);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--ink);
+  opacity: 0.7;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -768,13 +681,15 @@ section {
 }
 
 .project-card:hover {
-  transform: translateY(-4px);
+  transform: translate(-2px, -2px);
 }
 
 .project-card h3 {
   font-family: var(--font-display);
-  font-size: 1.0625rem;
-  color: var(--forest);
+  font-weight: 400;
+  font-size: 1.25rem;
+  letter-spacing: 0.5px;
+  color: var(--red);
 }
 
 .project-card p {
@@ -788,13 +703,14 @@ section {
   flex-wrap: wrap;
 }
 
-/* Étiquette générique, pilule colorée (tags de projets ET soft skills dans "À propos") */
+/* Étiquette générique, pilule façon tag technique (tags de projets ET soft skills dans "À propos") */
 .tag {
+  font-family: var(--font-mono);
   font-size: 0.6875rem;
   font-weight: 700;
-  background: var(--forest);
+  background: var(--black);
   color: #fff;
-  padding: 0.35rem 0.8rem;
+  padding: 0.3rem 0.7rem;
   border-radius: 999px;
 }
 
@@ -807,15 +723,17 @@ section {
 .project-links a {
   font-size: 0.75rem;
   font-weight: 700;
-  padding: 0.55rem 1rem;
-  background: var(--cream-dark);
-  border-radius: 999px;
-  color: var(--text-dark);
+  padding: 0.5rem 0.9rem;
+  background: var(--paper-dark);
+  border: 2px solid var(--black);
+  border-radius: 6px;
+  color: var(--ink);
 }
 
 .project-links a:hover {
-  background: var(--brown-light);
+  background: var(--red);
   color: #fff;
+  border-color: var(--black);
 }
 
 /* Bouton "Démo" : un <button>, pas un <a>, car il ouvre la lightbox en JS
@@ -824,16 +742,16 @@ section {
   font-family: var(--font-body);
   font-size: 0.75rem;
   font-weight: 700;
-  padding: 0.55rem 1rem;
-  background: var(--forest);
+  padding: 0.5rem 0.9rem;
+  background: var(--red);
   color: #fff;
-  border: none;
-  border-radius: 999px;
+  border: 2px solid var(--black);
+  border-radius: 6px;
   cursor: pointer;
 }
 
 .btn-demo:hover {
-  background: var(--forest-light);
+  background: var(--red-dark);
 }
 
 /* =============================================================================
@@ -843,7 +761,7 @@ section {
   position: fixed;
   inset: 0;
   z-index: 200;
-  background: rgba(36, 56, 31, 0.85); /* Vert forêt très sombre semi-transparent, plutôt qu'un noir pur */
+  background: rgba(5, 6, 8, 0.9);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -867,16 +785,17 @@ section {
   align-items: center;
   justify-content: space-between;
   font-family: var(--font-display);
-  font-size: 0.9375rem;
+  font-size: 1.0625rem;
+  color: var(--red);
 }
 
 .lightbox-close {
   font-family: var(--font-body);
   font-weight: 700;
-  background: var(--badge-5);
+  background: var(--black);
   color: #fff;
-  border: none;
-  border-radius: 999px;
+  border: 2px solid var(--black);
+  border-radius: 50%;
   cursor: pointer;
   width: 32px;
   height: 32px;
@@ -893,7 +812,8 @@ section {
   width: 100%;
   max-height: 60vh;
   object-fit: contain;
-  border-radius: 16px;
+  border: 2px solid var(--black);
+  border-radius: 8px;
   background: #000;
 }
 
@@ -904,7 +824,7 @@ section {
 .lightbox-empty {
   flex: 1;
   text-align: center;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   line-height: 1.8;
 }
 
@@ -912,9 +832,9 @@ section {
   flex-shrink: 0;
   font-family: var(--font-body);
   font-size: 1rem;
-  background: var(--cream);
-  color: var(--text-dark);
-  border: none;
+  background: var(--paper);
+  color: var(--ink);
+  border: 2px solid var(--black);
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -922,8 +842,7 @@ section {
 }
 
 .lightbox-nav:hover {
-  /* --forest-dark pour la même raison de contraste que .btn:hover ci-dessus */
-  background: var(--forest-dark);
+  background: var(--red);
   color: #fff;
 }
 
@@ -933,8 +852,11 @@ section {
 
 .lightbox-counter {
   text-align: center;
+  font-family: var(--font-mono);
   font-size: 0.75rem;
-  color: var(--cream);
+  /* --ink, pas --white : ce compteur est à l'intérieur de .lightbox-panel.card
+     (fond clair), pas sur le fond sombre de l'overlay derrière la fenêtre */
+  color: var(--ink);
 }
 
 /* =============================================================================
@@ -951,9 +873,11 @@ section {
 
 .contact-info h3 {
   font-family: var(--font-display);
-  font-size: 1.0625rem;
+  font-weight: 400;
+  font-size: 1.25rem;
+  letter-spacing: 0.5px;
   margin-bottom: 1.2rem;
-  color: var(--forest);
+  color: var(--red);
 }
 
 .contact-list {
@@ -961,6 +885,17 @@ section {
   flex-direction: column;
   gap: 1rem;
   font-size: 0.8125rem;
+}
+
+.contact-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.contact-icon {
+  flex-shrink: 0;
+  color: var(--red);
 }
 
 .contact-list a {
@@ -985,9 +920,10 @@ section {
 }
 
 label {
+  font-family: var(--font-mono);
   font-size: 0.6875rem;
   font-weight: 700;
-  color: var(--brown);
+  color: var(--ink);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -998,9 +934,9 @@ textarea {
   font-size: 0.875rem;
   padding: 0.7rem 1rem;
   background: #fff;
-  color: var(--text-dark);
-  border: 2px solid var(--cream-dark);
-  border-radius: 14px;
+  color: var(--ink);
+  border: 2px solid var(--black);
+  border-radius: 6px;
 }
 
 input:focus,
@@ -1009,7 +945,7 @@ textarea:focus {
      plus haut par la règle globale ":focus-visible" (indispensable pour la
      navigation clavier). On ajoute juste le changement de couleur de bordure
      comme indice visuel supplémentaire. */
-  border-color: var(--forest);
+  border-color: var(--red);
 }
 
 textarea {
@@ -1024,19 +960,17 @@ textarea {
   text-align: center;
   font-size: 0.8125rem;
   font-weight: 700;
-  border-radius: 16px;
+  border: 3px solid var(--black);
+  border-radius: 8px;
 }
 
 .flash-message.success {
-  background: var(--forest);
+  background: #2e7d32;
   color: #fff;
 }
 
 .flash-message.error {
-  /* --badge-5 (#ff4d6d) est trop clair pour du texte blanc lisible (ratio
-     ~3.2:1, sous le minimum WCAG AA de 4.5:1 pour du texte de cette taille).
-     On utilise ici un rouge plus soutenu, réservé à ce message d'erreur. */
-  background: #c8324f;
+  background: var(--red-dark);
   color: #fff;
 }
 
@@ -1046,9 +980,12 @@ textarea {
 footer {
   text-align: center;
   padding: 2rem 0;
+  font-family: var(--font-mono);
   font-size: 0.75rem;
-  color: var(--cream);
-  opacity: 0.7;
+  color: var(--white);
+  opacity: 0.6;
+  position: relative;
+  z-index: 1;
 }
 
 /* =============================================================================
@@ -1064,12 +1001,13 @@ footer {
     top: calc(100% + 0.6rem);
     left: 0;
     right: 0;
-    background: var(--cream);
-    border-radius: 24px;
+    background: var(--paper);
+    border: 3px solid var(--black);
+    border-radius: 16px;
     flex-direction: column;
     padding: 1rem;
     display: none;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    box-shadow: 6px 6px 0 var(--black);
   }
 
   .nav-links.open {
@@ -1091,23 +1029,29 @@ footer {
   font-family: var(--font-body);
 }
 
+/* Le bouton affiche le texte "Aa" plutôt qu'un pictogramme : convention
+   courante des widgets d'accessibilité, et ça reste lisible/recolorable
+   dans tous les modes (y compris contraste élevé, contrairement à un emoji
+   qui garde toujours ses propres couleurs). */
 .a11y-toggle {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: var(--forest-dark);
+  background: var(--red);
   color: #fff;
-  border: none;
-  font-size: 1.5rem;
+  border: 3px solid var(--black);
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.25rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+  box-shadow: 4px 4px 0 var(--black);
 }
 
 .a11y-toggle:hover {
-  background: var(--forest);
+  background: var(--red-dark);
 }
 
 .a11y-panel {
@@ -1117,11 +1061,12 @@ footer {
   width: min(300px, 80vw);
   max-height: 75vh;
   overflow-y: auto;
-  background: var(--cream);
-  color: var(--text-dark);
-  border-radius: 20px;
+  background: var(--paper);
+  color: var(--ink);
+  border: 3px solid var(--black);
+  border-radius: 12px;
   padding: 1.2rem;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  box-shadow: 6px 6px 0 var(--black);
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
@@ -1139,8 +1084,10 @@ footer {
 
 .a11y-panel-header h2 {
   font-family: var(--font-display);
-  font-size: 1.0625rem;
-  color: var(--forest);
+  font-weight: 400;
+  font-size: 1.375rem;
+  letter-spacing: 0.5px;
+  color: var(--red);
 }
 
 .a11y-close {
@@ -1148,15 +1095,15 @@ footer {
   border: none;
   font-size: 1.1rem;
   cursor: pointer;
-  color: var(--text-dark);
+  color: var(--ink);
 }
 
 .a11y-group-label {
+  font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--brown);
 }
 
 .a11y-btn-row {
@@ -1167,16 +1114,16 @@ footer {
 .a11y-btn {
   flex: 1;
   padding: 0.5rem;
-  border-radius: 10px;
-  border: 2px solid var(--cream-dark);
+  border-radius: 6px;
+  border: 2px solid var(--black);
   background: #fff;
-  color: var(--text-dark);
+  color: var(--ink);
   font-weight: 700;
   cursor: pointer;
 }
 
 .a11y-btn:hover {
-  background: var(--cream-dark);
+  background: var(--paper-dark);
 }
 
 .a11y-toggle-btn {
@@ -1184,10 +1131,10 @@ footer {
   align-items: center;
   gap: 0.5rem;
   padding: 0.6rem 0.8rem;
-  border-radius: 10px;
-  border: 2px solid var(--cream-dark);
+  border-radius: 6px;
+  border: 2px solid var(--black);
   background: #fff;
-  color: var(--text-dark);
+  color: var(--ink);
   text-align: left;
   font-family: var(--font-body);
   font-weight: 600;
@@ -1195,11 +1142,11 @@ footer {
   cursor: pointer;
 }
 
-/* aria-pressed="true" = bascule actuellement activée : mis en évidence en vert plein */
+/* aria-pressed="true" = bascule actuellement activée : mise en évidence en rouge plein */
 .a11y-toggle-btn[aria-pressed="true"] {
-  background: var(--forest);
+  background: var(--red);
   color: #fff;
-  border-color: var(--forest);
+  border-color: var(--black);
 }
 
 .a11y-reset-btn {
@@ -1210,7 +1157,7 @@ footer {
   font-family: var(--font-body);
   font-size: 0.8rem;
   cursor: pointer;
-  color: var(--brown);
+  color: var(--ink);
 }
 
 /* =============================================================================
@@ -1233,6 +1180,39 @@ html.a11y-text-xl {
   font-size: 137%;
 }
 
+/* --- Mode clair : remplace le fond marine sombre par un fond clair (façon
+   ciel/papier), en gardant les cartes, les rouges et la mise en page telles
+   quelles. Contrairement au "contraste élevé" (qui vise la conformité WCAG
+   en noir/blanc strict), ce mode est purement esthétique : une alternative
+   claire au thème sombre par défaut, pour qui préfère lire sur fond clair. --- */
+html.a11y-light body {
+  background: linear-gradient(160deg, #eef2fb 0%, #e2e8f5 100%);
+  color: var(--ink);
+}
+
+/* Le grain de fond et les traits de toile d'araignée sont pensés pour un
+   fond sombre (points/traits blancs) : à peine visibles sur fond clair, ils
+   sont donc masqués plutôt que laissés inutiles. */
+html.a11y-light body::before,
+html.a11y-light .web-field {
+  display: none;
+}
+
+/* Les textes affichés directement sur le fond de page (hors des cartes,
+   déjà claires par défaut) passent du blanc au sombre pour rester lisibles */
+html.a11y-light .hero-eyebrow,
+html.a11y-light .hero-subtitle,
+html.a11y-light footer {
+  color: var(--ink);
+}
+
+html.a11y-light .section-title,
+html.a11y-light .projects-subtitle {
+  color: var(--ink);
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+}
+
 /* --- Police adaptée à la dyslexie : OpenDyslexic, une police libre conçue
    spécifiquement pour cet usage (formes de lettres asymétriques qui limitent
    les confusions/inversions comme b/d/p/q). Chargée depuis un CDN public,
@@ -1253,7 +1233,7 @@ html.a11y-text-xl {
 :root.a11y-dyslexic {
   --font-body: "OpenDyslexic", sans-serif;
   --font-display: "OpenDyslexic", sans-serif;
-  --font-script: "OpenDyslexic", sans-serif;
+  --font-mono: "OpenDyslexic", monospace;
 }
 
 /* Espacement des lettres et interligne augmentés : recommandation courante
@@ -1263,48 +1243,111 @@ html.a11y-dyslexic body {
   line-height: 1.9;
 }
 
-/* --- Contraste élevé : remplace la palette chaleureuse (verts/crème/bruns,
-   souvent proches en luminosité) par un noir sur blanc maximal, plus facile
-   à distinguer pour les personnes malvoyantes ou sensibles au contraste. --- */
-:root.a11y-contrast {
-  --forest-dark: #000000;
-  --forest: #000000;
-  --forest-light: #000000;
-  --cream: #ffffff;
-  --cream-dark: #e0e0e0;
-  --brown: #000000;
-  --brown-light: #000000;
-  --text-dark: #000000;
-  --text-light: #ffffff;
-}
-
+/* --- Contraste élevé : noir sur blanc explicite et systématique.
+   Volontairement écrit en listant CHAQUE composant plutôt qu'en ne
+   redéfinissant que les variables de couleur : une redéfinition de
+   variables avait auparavant produit des boutons noirs sur un fond de page
+   devenu noir lui aussi (invisibles). Ici, le fond de page passe au BLANC
+   (jamais au noir), donc aucun élément à bordure/fond noir ne peut se
+   fondre dans l'arrière-plan, quelle que soit la combinaison. --- */
 html.a11y-contrast body {
-  background: #000000;
+  background: #ffffff;
+  color: #000000;
 }
 
-/* Le grain de fond et les formes décoratives ("blobs") n'apportent rien en
-   contraste élevé et pourraient au contraire réduire la lisibilité : on les
-   masque entièrement dans ce mode. */
+/* Le grain de fond et les traits décoratifs n'apportent rien en contraste
+   élevé et pourraient au contraire réduire la lisibilité : masqués ici. */
 html.a11y-contrast body::before,
-html.a11y-contrast .blob {
+html.a11y-contrast .web-field {
   display: none;
 }
 
-html.a11y-contrast .card {
-  border: 2px solid #000000;
+html.a11y-contrast .card,
+html.a11y-contrast .navbar .container,
+html.a11y-contrast .a11y-panel {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border-color: #000000 !important;
+  box-shadow: 6px 6px 0 #000000 !important;
 }
 
-/* Les badges de compétences colorés (bleu/orange/violet...) n'ont pas tous
-   un contraste suffisant entre eux et avec leur fond en mode contraste élevé :
-   on les uniformise en noir/blanc, la jauge restant lisible grâce à son
-   contour (voir .skill-gauge plus haut). */
-html.a11y-contrast .skill-icon {
+html.a11y-contrast .hero-title,
+html.a11y-contrast .section-title,
+html.a11y-contrast .projects-subtitle,
+html.a11y-contrast .about-greeting,
+html.a11y-contrast .skills-category-title,
+html.a11y-contrast .logo,
+html.a11y-contrast .project-card h3,
+html.a11y-contrast .contact-info h3,
+html.a11y-contrast .lightbox-header,
+html.a11y-contrast .a11y-panel-header h2 {
+  color: #000000 !important;
+  -webkit-text-stroke: 0 !important;
+  text-shadow: none !important;
+}
+
+html.a11y-contrast .hero-eyebrow,
+html.a11y-contrast .hero-subtitle,
+html.a11y-contrast .hero-subtitle--small,
+html.a11y-contrast footer {
+  color: #000000 !important;
+}
+
+/* Boutons, badges et étiquettes : toujours noir sur blanc (ou l'inverse),
+   jamais de couleur assortie au fond, avec une bordure épaisse pour rester
+   visibles quel que soit ce qui les entoure. */
+html.a11y-contrast .btn,
+html.a11y-contrast .hero-year,
+html.a11y-contrast .tag,
+html.a11y-contrast .btn-demo,
+html.a11y-contrast .skill-icon,
+html.a11y-contrast .a11y-toggle,
+html.a11y-contrast .lightbox-close,
+html.a11y-contrast .lightbox-nav {
   background: #000000 !important;
   color: #ffffff !important;
+  border-color: #000000 !important;
+  box-shadow: none !important;
+  -webkit-text-stroke: 0 !important;
+}
+
+html.a11y-contrast .btn:hover,
+html.a11y-contrast .btn-demo:hover,
+html.a11y-contrast .a11y-toggle:hover,
+html.a11y-contrast .lightbox-nav:hover {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+}
+
+html.a11y-contrast .skill-gauge {
+  background: #ffffff !important;
+  border-color: #000000 !important;
 }
 
 html.a11y-contrast .skill-gauge-fill {
   background: #000000 !important;
+}
+
+html.a11y-contrast .nav-links a {
+  color: #000000 !important;
+}
+
+html.a11y-contrast .nav-links a:hover,
+html.a11y-contrast .nav-links a.active {
+  background: #000000 !important;
+  color: #ffffff !important;
+}
+
+html.a11y-contrast .a11y-toggle-btn {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border-color: #000000 !important;
+}
+
+html.a11y-contrast .a11y-toggle-btn[aria-pressed="true"] {
+  background: #000000 !important;
+  color: #ffffff !important;
 }
 
 /* --- Réduction manuelle des animations : équivalent du média-query

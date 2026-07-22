@@ -15,7 +15,6 @@ declare(strict_types=1); // Force PHP à vérifier strictement les types (plus d
 $profile = [
     'name' => 'Sara Agbehonou',
     'role' => 'Ingénieure informatique en formation — Dev Web & Systèmes/Réseau',
-    'location' => 'Neuilly-Plaisance (93)',
     'phone' => '+33 7 58 31 88 59',
     'email' => 'agbehonouaesther@gmail.com',
     'linkedin' => 'linkedin.com/in/sara-agbehonou',
@@ -24,39 +23,78 @@ $profile = [
 // -----------------------------------------------------------------------
 // 2) COMPÉTENCES
 // Tableau associatif : la clé = nom de la catégorie (Front-end, Back-end...),
-// la valeur = liste de compétences avec un nom, une icône (emoji) affichée
-// dans un badge coloré façon icône d'application (voir .skill-icon en CSS),
-// et un "level" en pourcentage (0-100) affiché comme une petite jauge arrondie
-// sous le nom (voir .skill-gauge en CSS). NB : les niveaux sont des
-// estimations, à ajuster selon le ressenti réel.
+// la valeur = liste de compétences avec un nom, un "slug" et un "level" en
+// pourcentage (0-100) affiché comme une petite jauge arrondie sous le nom
+// (voir .skill-gauge en CSS). Le "slug" sert de nom de fichier logo dans
+// assets/img/logos/<slug>.(svg|png|webp) : voir la boucle de scan plus bas,
+// qui affiche ce logo s'il existe, ou de simples initiales sinon (jamais
+// d'emoji). NB : les niveaux sont des estimations, à ajuster selon le
+// ressenti réel.
 // -----------------------------------------------------------------------
 $skillCategories = [
     'Front-end' => [
-        ['name' => 'HTML5 / CSS3', 'icon' => '🧱', 'level' => 85],
-        ['name' => 'JavaScript', 'icon' => '⚡', 'level' => 75],
-        ['name' => 'UX / UI · Figma', 'icon' => '🎨', 'level' => 65],
-        ['name' => 'Nunjucks', 'icon' => '📄', 'level' => 60],
+        ['name' => 'HTML5 / CSS3', 'slug' => 'html-css', 'level' => 85],
+        ['name' => 'JavaScript', 'slug' => 'javascript', 'level' => 75],
+        ['name' => 'UX / UI · Figma', 'slug' => 'figma', 'level' => 65],
+        ['name' => 'Nunjucks', 'slug' => 'nunjucks', 'level' => 60],
     ],
     'Back-end' => [
-        ['name' => 'PHP (MVC)', 'icon' => '🐘', 'level' => 75],
-        ['name' => 'Node.js / Express', 'icon' => '🟢', 'level' => 65],
-        ['name' => 'MySQL / MariaDB', 'icon' => '🗄️', 'level' => 70],
-        ['name' => 'Python', 'icon' => '🐍', 'level' => 55],
+        ['name' => 'PHP (MVC)', 'slug' => 'php', 'level' => 75],
+        ['name' => 'Node.js / Express', 'slug' => 'nodejs', 'level' => 65],
+        ['name' => 'MySQL / MariaDB', 'slug' => 'mysql', 'level' => 70],
+        ['name' => 'Python', 'slug' => 'python', 'level' => 55],
     ],
     'Système & Réseau' => [
-        ['name' => 'Linux (Debian/Ubuntu)', 'icon' => '🐧', 'level' => 70],
-        ['name' => 'Windows Server / AD', 'icon' => '🖥️', 'level' => 65],
-        ['name' => 'VLAN / DHCP / DNS / TCP-IP', 'icon' => '🌐', 'level' => 65],
-        ['name' => 'Cisco Packet Tracer / WLC', 'icon' => '📡', 'level' => 60],
-        ['name' => 'Wireshark', 'icon' => '🦈', 'level' => 60],
-        ['name' => 'Bash / PowerShell / Cron', 'icon' => '⌨️', 'level' => 65],
+        ['name' => 'Linux (Debian/Ubuntu)', 'slug' => 'linux', 'level' => 70],
+        ['name' => 'Windows Server / AD', 'slug' => 'windows-server', 'level' => 65],
+        ['name' => 'VLAN / DHCP / DNS / TCP-IP', 'slug' => 'network', 'level' => 65],
+        ['name' => 'Cisco Packet Tracer / WLC', 'slug' => 'cisco', 'level' => 60],
+        ['name' => 'Wireshark', 'slug' => 'wireshark', 'level' => 60],
+        ['name' => 'Bash / PowerShell / Cron', 'slug' => 'bash', 'level' => 65],
     ],
     'Outils' => [
-        ['name' => 'Git / GitHub / GitLab', 'icon' => '🔧', 'level' => 75],
-        ['name' => 'VMware / VirtualBox', 'icon' => '💻', 'level' => 65],
-        ['name' => 'Trello / Gantt', 'icon' => '📋', 'level' => 70],
+        ['name' => 'Git / GitHub / GitLab', 'slug' => 'git', 'level' => 75],
+        ['name' => 'VMware / VirtualBox', 'slug' => 'vmware', 'level' => 65],
+        ['name' => 'Trello / Gantt', 'slug' => 'trello', 'level' => 70],
     ],
 ];
+
+$logoExtensions = ['svg', 'png', 'webp'];
+
+// Pour chaque compétence : cherche un logo dans assets/img/logos/<slug>.*
+// et calcule des initiales de repli (1res lettres des mots significatifs
+// du nom) si aucun logo n'est encore fourni. Même principe que le scan des
+// images de projets plus bas : il suffit de déposer un fichier logo au bon
+// endroit pour qu'il apparaisse automatiquement, sans toucher au code.
+foreach ($skillCategories as &$skills) {
+    foreach ($skills as &$skill) {
+        $skill['logo'] = null;
+
+        foreach ($logoExtensions as $ext) {
+            $logoPath = __DIR__ . '/assets/img/logos/' . $skill['slug'] . '.' . $ext;
+            if (file_exists($logoPath)) {
+                $skill['logo'] = 'assets/img/logos/' . $skill['slug'] . '.' . $ext;
+                break;
+            }
+        }
+
+        // Initiales de repli : garde uniquement les mots de plus de 2 lettres
+        // (ignore "de", "à"...) et prend leur première lettre, sur 2 max
+        // (ex: "Windows Server / AD" -> "WS", "Python" -> "P")
+        $words = preg_split('/[\s\/·()]+/', $skill['name'], -1, PREG_SPLIT_NO_EMPTY);
+        $letters = '';
+        foreach ($words as $word) {
+            if (mb_strlen($word) > 2) {
+                $letters .= mb_strtoupper(mb_substr($word, 0, 1));
+            }
+            if (mb_strlen($letters) >= 2) {
+                break;
+            }
+        }
+        $skill['initials'] = $letters !== '' ? $letters : mb_strtoupper(mb_substr($skill['name'], 0, 2));
+    }
+}
+unset($skills, $skill);
 
 // -----------------------------------------------------------------------
 // 3) PROJETS
@@ -80,7 +118,7 @@ $projects = [
         'slug' => 'nutricare',
         'category' => 'dev',
         'title' => 'NutriCare+ — Suivi diabétique & nutritionnel',
-        'meta' => 'Chef de projet · Groupe de 5 · 03/2026 → en cours',
+        'meta' => 'Chef de projet · Groupe de 5 · 03/2026 → Terminé',
         'description' => "Application web de suivi médical personnalisé du diabète. Architecture MVC PHP/MySQL avec front controller unique et pattern PRG, conception du MLD, gestion des sessions et protection CSRF/IDOR. Pilotage d'équipe : 39+ issues GitLab, roadmap, sprints Trello/Gantt. Déployée sur VM Debian LAMP, maquette Figma intégrée en HTML/CSS responsive.",
         'tags' => ['PHP', 'MySQL', 'MVC', 'HTML/CSS', 'JavaScript', 'Debian LAMP', 'Figma'],
         'code' => '#',
@@ -101,7 +139,6 @@ $projects = [
         'meta' => 'Projet individuel · ESIEA · 2025',
         'description' => "Conception d'un réseau classe B sur Cisco Packet Tracer : configuration des VLANs, trunks inter-switch, DHCP, DNS, intégration d'un WLC (Wireless LAN Controller) et de ses Access Points, diagnostic de pannes (IP, VLAN, gateway, ports en shutdown).",
         'tags' => ['Cisco Packet Tracer', 'VLAN', 'DHCP', 'DNS', 'WLC'],
-        'code' => '#',
     ],
     [
         'slug' => 'tp-windows-server',
@@ -110,7 +147,6 @@ $projects = [
         'meta' => 'Projet individuel · ESIEA · 2026',
         'description' => "Déploiement d'une infrastructure virtualisée (Windows Server + Client), configuration Active Directory (domaine, OUs, groupes, utilisateurs), gestion des permissions NTFS différenciées, mise en place de partages réseau et lecteurs mappés (Z:, Y:).",
         'tags' => ['Windows Server 2022', 'Active Directory', 'NTFS', 'VMware'],
-        'code' => '#',
     ],
     [
         'slug' => 'tp-wireshark',
@@ -119,7 +155,6 @@ $projects = [
         'meta' => 'Projet individuel · ESIEA · 2026',
         'description' => "Capture et analyse de trames Ethernet et datagrammes IP, identification des protocoles TCP/UDP/ICMP et correspondance avec le modèle OSI/TCP-IP, mise en réseau de VMs (Host-only / NAT) avec filtrage de trafic ciblé.",
         'tags' => ['Wireshark', 'TCP/IP', 'OSI', 'VMware'],
-        'code' => '#',
     ],
     [
         'slug' => 'tp-bash-cron',
@@ -128,19 +163,9 @@ $projects = [
         'meta' => 'Binôme · ESIEA · 2026',
         'description' => "Scripts Bash interactifs (création d'utilisateurs, nettoyage de /tmp/), planification de tâches via cron (mardis et samedis à 12h00 et 14h00), gestion des droits et automatisation de la maintenance système.",
         'tags' => ['Bash', 'Cron', 'Linux'],
-        'code' => '#',
     ],
 ];
 
-// -----------------------------------------------------------------------
-// 4) SCAN AUTOMATIQUE DES IMAGES DE CHAQUE PROJET
-// Pour chaque projet, on regarde si un dossier assets/img/projects/<slug>/
-// existe et on liste toutes les images qu'il contient (extensions autorisées
-// ci-dessous). Le résultat est stocké dans $project['images'] et sera
-// réutilisé plus bas pour la galerie "lightbox" en JavaScript.
-// Avantage : il suffit de déposer des fichiers dans le bon dossier, aucune
-// modification de code n'est nécessaire pour qu'ils apparaissent sur le site.
-// -----------------------------------------------------------------------
 $imageExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
 
 // Le "&" devant $project permet de MODIFIER directement chaque élément du
@@ -190,6 +215,7 @@ $status = $_GET['status'] ?? null;
                 var html = document.documentElement;
                 if (prefs.textSize === 1) html.classList.add('a11y-text-lg');
                 if (prefs.textSize === 2) html.classList.add('a11y-text-xl');
+                if (prefs.lightMode) html.classList.add('a11y-light');
                 if (prefs.dyslexic) html.classList.add('a11y-dyslexic');
                 if (prefs.contrast) html.classList.add('a11y-contrast');
                 if (prefs.reduceMotion) html.classList.add('a11y-reduce-motion');
@@ -199,11 +225,11 @@ $status = $_GET['status'] ?? null;
             }
         })();
     </script>
-    <!-- 3 polices Google Fonts pour le thème "chaleureux / illustré" :
-         Baloo 2 = gros titres arrondis façon bulle, Caveat = script manuscrit
-         pour les touches personnelles, Quicksand = texte courant -->
+    <!-- 3 polices Google Fonts pour le thème "comic / street-art" :
+         Bangers = gros titres façon bande dessinée, Space Mono = étiquettes
+         techniques (dates, méta-infos) façon plan/schéma, Inter = texte courant -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Caveat:wght@500;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -217,12 +243,15 @@ $status = $_GET['status'] ?? null;
     <!-- ============================== WIDGET D'ACCESSIBILITÉ ==============================
          Bouton flottant toujours visible (bas droite) qui ouvre un panneau de réglages :
          taille du texte, police adaptée à la dyslexie, contraste élevé, animations réduites.
+         Le bouton affiche "Aa" (texte, pas d'emoji/pictogramme) : convention courante des
+         widgets d'accessibilité, et ça reste lisible/recolorable dans tous les modes (y
+         compris le contraste élevé, contrairement à un emoji qui garde ses propres couleurs).
          Toute la logique (ouverture/fermeture, application des réglages, sauvegarde) est
          dans script.js ; voir aussi le petit script en haut du <head> qui réapplique les
          réglages déjà enregistrés dès le chargement de la page. -->
     <div class="a11y-widget">
         <button type="button" class="a11y-toggle" id="a11y-toggle" aria-expanded="false" aria-controls="a11y-panel" aria-label="Ouvrir les options d'accessibilité">
-            <span aria-hidden="true">♿</span>
+            Aa
         </button>
         <div class="a11y-panel" id="a11y-panel" hidden>
             <div class="a11y-panel-header">
@@ -241,22 +270,25 @@ $status = $_GET['status'] ?? null;
 
             <!-- aria-pressed reflète l'état actif/inactif de chaque bascule, mis à jour par
                  script.js : un lecteur d'écran annonce alors "activé"/"désactivé" -->
+            <button type="button" class="a11y-toggle-btn" id="a11y-light-toggle" aria-pressed="false">
+                Mode clair
+            </button>
             <button type="button" class="a11y-toggle-btn" id="a11y-dyslexic-toggle" aria-pressed="false">
-                <span aria-hidden="true">🔤</span> Police adaptée dyslexie
+                Police adaptée dyslexie
             </button>
             <button type="button" class="a11y-toggle-btn" id="a11y-contrast-toggle" aria-pressed="false">
-                <span aria-hidden="true">◐</span> Contraste élevé
+                Contraste élevé
             </button>
             <button type="button" class="a11y-toggle-btn" id="a11y-motion-toggle" aria-pressed="false">
-                <span aria-hidden="true">⏸</span> Réduire les animations
+                Réduire les animations
             </button>
 
-            <button type="button" class="a11y-reset-btn" id="a11y-reset">↺ Réinitialiser les réglages</button>
+            <button type="button" class="a11y-reset-btn" id="a11y-reset">Réinitialiser les réglages</button>
         </div>
     </div>
 
     <!-- ============================== NAVIGATION ============================== -->
-    <!-- Barre de navigation en pilule crème flottante, fixée en haut de page (sticky) -->
+    <!-- Barre de navigation en pilule flottante, fixée en haut de page (sticky) -->
     <header class="navbar">
         <div class="container">
             <span class="logo">SARA.AGBEHONOU</span>
@@ -281,25 +313,22 @@ $status = $_GET['status'] ?? null;
 
     <!-- ============================== HERO / ACCUEIL ============================== -->
     <section id="accueil" class="hero">
-        <!-- Formes organiques décoratives ("blobs"), générées en pur CSS (voir .blob
-             dans style.css) : remplacent les cubes Minecraft de l'ancien thème pour
-             évoquer un décor illustré/feuillage stylisé sans image réelle.
-             aria-hidden="true" : ces formes sont purement visuelles et ne doivent pas
-             être annoncées par les lecteurs d'écran. -->
-        <div class="blob-field" aria-hidden="true">
-            <div class="blob blob--1"></div>
-            <div class="blob blob--2"></div>
-            <div class="blob blob--3"></div>
-            <div class="blob blob--4"></div>
+        <!-- Traits façon toile d'araignée décoratifs, en pur CSS (voir .web-field
+             dans style.css) : remplacent les formes organiques de l'ancien thème
+             pour évoquer l'esprit "comic/super-héros" sans image réelle.
+             aria-hidden="true" : ces traits sont purement visuels. -->
+        <div class="web-field" aria-hidden="true">
+            <div class="web-line web-line--1"></div>
+            <div class="web-line web-line--2"></div>
+            <div class="web-line web-line--3"></div>
+            <div class="web-line web-line--4"></div>
         </div>
         <div class="container">
             <p class="hero-eyebrow">Sara Agbehonou · Ingénieure informatique</p>
             <h1 class="hero-title">PORTFOLIO</h1>
             <span class="hero-year">2026</span>
             <p class="hero-subtitle">Développement Web &amp; Systèmes/Réseau — parcours Expert à l'ESIEA</p>
-            <!-- L'emoji décoratif est masqué aux lecteurs d'écran (aria-hidden) : le texte qui
-                 suit porte déjà tout le sens, l'emoji n'apporte rien à l'écoute -->
-            <p class="hero-subtitle hero-subtitle--small"><span aria-hidden="true">🌿</span> À la recherche d'une alternance de 12 mois</p>
+            <p class="hero-subtitle hero-subtitle--small">À la recherche d'une alternance de 12 mois</p>
             <!-- Boutons d'action principaux : ancres vers d'autres sections de la même page -->
             <div class="hero-actions">
                 <a href="#projets" class="btn btn-primary">Voir mes projets</a>
@@ -307,8 +336,14 @@ $status = $_GET['status'] ?? null;
             </div>
             <!-- Téléchargement direct des CV en PDF (attribut "download" = pas d'ouverture dans un nouvel onglet) -->
             <div class="hero-actions hero-actions--cv">
-                <a href="assets/cv/CV_Sara_Agbehonou_DevWeb.pdf" class="btn btn-cv" download><span aria-hidden="true">⬇</span> CV Développement Web</a>
-                <a href="assets/cv/CV_Sara_Agbehonou_SysReseau.pdf" class="btn btn-cv" download><span aria-hidden="true">⬇</span> CV Système &amp; Réseau</a>
+                <a href="assets/cv/CV_Sara_Agbehonou_DevWeb.pdf" class="btn btn-cv" download>
+                    <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 20h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    CV Développement Web
+                </a>
+                <a href="assets/cv/CV_Sara_Agbehonou_SysReseau.pdf" class="btn btn-cv" download>
+                    <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 20h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    CV Système &amp; Réseau
+                </a>
             </div>
         </div>
     </section>
@@ -318,17 +353,6 @@ $status = $_GET['status'] ?? null;
         <div class="container">
             <h2 class="section-title">À propos</h2>
             <div class="card about-grid reveal">
-                <!-- Avatar rond avec initiales (aucune photo fournie pour l'instant) + légende
-                     manuscrite inclinée, façon "That's me!" de la référence visuelle.
-                     Pour utiliser une vraie photo plus tard : remplacer ce bloc par une balise
-                     <img> ronde (border-radius: 50%) pointant vers le fichier de la photo. -->
-                <div class="avatar-wrap">
-                    <!-- role="img" + aria-label : un lecteur d'écran annoncera une description
-                         utile ("Avatar avec les initiales...") plutôt que de lire "S A" lettre
-                         par lettre comme du texte normal -->
-                    <div class="avatar-circle" role="img" aria-label="Avatar avec les initiales de Sara Agbehonou">SA</div>
-                    <span class="avatar-caption" aria-hidden="true">C'est moi !</span>
-                </div>
                 <div class="about-text">
                     <p class="about-greeting">Salut, moi c'est Sara !</p>
                     <p>
@@ -338,10 +362,10 @@ $status = $_GET['status'] ?? null;
                         une application web de bout en bout.
                     </p>
                     <p>
-                        Actuellement cheffe de projet sur <strong>NutriCare+</strong>, une application de
-                        suivi médical développée en équipe de 5, je pilote aussi bien la technique
-                        (architecture MVC, base de données, sécurité) que l'organisation (roadmap,
-                        répartition des tâches, sprints).
+                        Récemment cheffe de projet sur <strong>NutriCare+</strong>, une application de
+                        suivi médical développée et livrée en équipe de 5, j'y ai piloté aussi bien la
+                        technique (architecture MVC, base de données, sécurité) que l'organisation
+                        (roadmap, répartition des tâches, sprints).
                     </p>
                     <p>
                         Rigoureuse, autonome et à l'aise en équipe, je suis actuellement à la recherche
@@ -355,6 +379,16 @@ $status = $_GET['status'] ?? null;
                         <span class="tag">Proactive &amp; adaptable</span>
                         <span class="tag">Travail en équipe</span>
                         <span class="tag">Communication claire</span>
+                    </div>
+
+                    <!-- Centres d'intérêt : étiquettes claires (fond blanc, bordure fine)
+                         plutôt que les pilules noires réutilisées ailleurs, pour ce bloc précis -->
+                    <p class="interests-title">Centres d'intérêt</p>
+                    <div class="interest-tags">
+                        <span class="interest-tag">Art séquentiel</span>
+                        <span class="interest-tag">Cinéma (Marvel)</span>
+                        <span class="interest-tag">Tir à l'arc</span>
+                        <span class="interest-tag">Basket</span>
                     </div>
                 </div>
             </div>
@@ -404,15 +438,19 @@ $status = $_GET['status'] ?? null;
                     <div class="skills-grid">
                         <?php // Deuxième boucle (imbriquée) : chaque compétence DANS la catégorie ?>
                         <?php foreach ($skills as $skill): ?>
-                            <!-- Badge carré coloré façon icône d'application (voir .skill-icon en CSS,
-                                 la couleur change automatiquement selon la position grâce à :nth-child)
-                                 + petite jauge de niveau arrondie sous le nom (voir .skill-gauge en CSS).
-                                 L'icône emoji est masquée aux lecteurs d'écran (aria-hidden) car le nom
-                                 juste à côté transmet déjà toute l'information utile. La jauge a un
-                                 role="progressbar" avec des valeurs numériques pour être annoncée
-                                 correctement ("Niveau : 85 sur 100") plutôt que d'être ignorée. -->
+                            <!-- Badge carré coloré : affiche le logo déposé dans assets/img/logos/
+                                 s'il existe (voir le scan en haut du fichier), sinon les initiales
+                                 de la compétence en repli (jamais d'emoji). La couleur de fond du
+                                 badge de repli change automatiquement selon la position grâce à
+                                 :nth-child. + petite jauge de niveau arrondie sous le nom. -->
                             <div class="skill-slot">
-                                <span class="skill-icon" aria-hidden="true"><?= htmlspecialchars($skill['icon']) ?></span>
+                                <?php if ($skill['logo']): ?>
+                                    <span class="skill-icon skill-icon--logo">
+                                        <img src="<?= htmlspecialchars($skill['logo']) ?>" alt="" width="28" height="28">
+                                    </span>
+                                <?php else: ?>
+                                    <span class="skill-icon" aria-hidden="true"><?= htmlspecialchars($skill['initials']) ?></span>
+                                <?php endif; ?>
                                 <span><?= htmlspecialchars($skill['name']) ?></span>
                                 <div class="skill-gauge" role="progressbar" aria-valuenow="<?= (int) $skill['level'] ?>" aria-valuemin="0" aria-valuemax="100" aria-label="Niveau en <?= htmlspecialchars($skill['name']) ?>">
                                     <div class="skill-gauge-fill" style="width: <?= (int) $skill['level'] ?>%;"></div>
@@ -431,7 +469,10 @@ $status = $_GET['status'] ?? null;
             <h2 class="section-title">Projets</h2>
 
             <!-- --- Sous-section "Développement" --- -->
-            <h3 class="projects-subtitle"><span aria-hidden="true">💻</span> Développement</h3>
+            <h3 class="projects-subtitle">
+                <svg class="projects-subtitle-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M8 6L2 12l6 6M16 6l6 6-6 6M14 4l-4 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Développement
+            </h3>
             <div class="projects-grid">
                 <?php foreach ($projects as $index => $project): ?>
                     <?php // On saute (continue) les projets qui ne sont pas de catégorie "dev" ?>
@@ -456,7 +497,10 @@ $status = $_GET['status'] ?? null;
             </div>
 
             <!-- --- Sous-section "Systèmes & Réseau" --- -->
-            <h3 class="projects-subtitle"><span aria-hidden="true">🖧</span> Systèmes &amp; Réseau</h3>
+            <h3 class="projects-subtitle">
+                <svg class="projects-subtitle-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><rect x="3" y="4" width="18" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><rect x="3" y="15" width="18" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="7" cy="6.5" r="0.8" fill="currentColor"/><circle cx="7" cy="17.5" r="0.8" fill="currentColor"/></svg>
+                Systèmes &amp; Réseau
+            </h3>
             <div class="projects-grid">
                 <?php foreach ($projects as $index => $project): ?>
                     <?php // Ici on garde uniquement les projets de catégorie "sys" ?>
@@ -471,8 +515,9 @@ $status = $_GET['status'] ?? null;
                             <?php endforeach; ?>
                         </div>
                         <div class="project-links">
+                            <!-- Pas de bouton "Code" ici : ce sont des TP système/réseau (configurations
+                                 Cisco, Windows Server...), pas des dépôts de code à consulter. -->
                             <button type="button" class="btn-demo" data-project-index="<?= (int) $index ?>">Démo</button>
-                            <a href="<?= htmlspecialchars($project['code']) ?>">Code</a>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -533,16 +578,26 @@ $status = $_GET['status'] ?? null;
 
             <div class="contact-grid">
                 <!-- Bloc coordonnées : affiché à gauche (voir .contact-grid en CSS).
-                     Les emojis sont décoratifs (aria-hidden) : le texte/lien qui suit
-                     porte déjà tout le sens utile pour un lecteur d'écran. -->
+                     Les icônes sont de petits SVG en ligne (currentColor, donc recolorables
+                     par le CSS, y compris en mode contraste élevé — contrairement à des
+                     emojis qui gardent toujours leurs propres couleurs) et marquées
+                     aria-hidden : le texte/lien qui suit porte déjà tout le sens utile. -->
                 <div class="card contact-info reveal">
                     <h3>Coordonnées</h3>
                     <ul class="contact-list">
-                        <li><span aria-hidden="true">📍</span> <?= htmlspecialchars($profile['location']) ?></li>
                         <!-- str_replace supprime les espaces du numéro pour que le lien tel: fonctionne -->
-                        <li><span aria-hidden="true">📞</span> <a href="tel:<?= htmlspecialchars(str_replace(' ', '', $profile['phone'])) ?>"><?= htmlspecialchars($profile['phone']) ?></a></li>
-                        <li><span aria-hidden="true">✉</span> <a href="mailto:<?= htmlspecialchars($profile['email']) ?>"><?= htmlspecialchars($profile['email']) ?></a></li>
-                        <li><span aria-hidden="true">🔗</span> <a href="https://<?= htmlspecialchars($profile['linkedin']) ?>" target="_blank" rel="noopener">LinkedIn <span class="sr-only">(ouvre dans un nouvel onglet)</span></a></li>
+                        <li>
+                            <svg class="contact-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 4h4l2 5-2.5 1.5a11 11 0 005 5L14 13l5 2v4a2 2 0 01-2 2A16 16 0 014 6a2 2 0 012-2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+                            <a href="tel:<?= htmlspecialchars(str_replace(' ', '', $profile['phone'])) ?>"><?= htmlspecialchars($profile['phone']) ?></a>
+                        </li>
+                        <li>
+                            <svg class="contact-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 6l9 7 9-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+                            <a href="mailto:<?= htmlspecialchars($profile['email']) ?>"><?= htmlspecialchars($profile['email']) ?></a>
+                        </li>
+                        <li>
+                            <svg class="contact-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M9 15l6-6M10 8l1-1a3.5 3.5 0 015 5l-1 1M14 16l-1 1a3.5 3.5 0 01-5-5l1-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            <a href="https://<?= htmlspecialchars($profile['linkedin']) ?>" target="_blank" rel="noopener">LinkedIn <span class="sr-only">(ouvre dans un nouvel onglet)</span></a>
+                        </li>
                     </ul>
                 </div>
 

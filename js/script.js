@@ -27,6 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const a11yTextSmaller = document.querySelector("#a11y-text-smaller");
   const a11yTextReset = document.querySelector("#a11y-text-reset");
   const a11yTextLarger = document.querySelector("#a11y-text-larger");
+  const a11yLightToggle = document.querySelector("#a11y-light-toggle");
   const a11yDyslexicToggle = document.querySelector("#a11y-dyslexic-toggle");
   const a11yContrastToggle = document.querySelector("#a11y-contrast-toggle");
   const a11yMotionToggle = document.querySelector("#a11y-motion-toggle");
@@ -65,10 +66,12 @@ document.addEventListener("DOMContentLoaded", () => {
     function applyPrefs() {
       html.classList.toggle("a11y-text-lg", prefs.textSize === 1);
       html.classList.toggle("a11y-text-xl", prefs.textSize === 2);
+      html.classList.toggle("a11y-light", Boolean(prefs.lightMode));
       html.classList.toggle("a11y-dyslexic", Boolean(prefs.dyslexic));
       html.classList.toggle("a11y-contrast", Boolean(prefs.contrast));
       html.classList.toggle("a11y-reduce-motion", Boolean(prefs.reduceMotion));
 
+      syncToggleButton(a11yLightToggle, prefs.lightMode);
       syncToggleButton(a11yDyslexicToggle, prefs.dyslexic);
       syncToggleButton(a11yContrastToggle, prefs.contrast);
       syncToggleButton(a11yMotionToggle, prefs.reduceMotion);
@@ -77,6 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Affiche l'état initial des boutons (classes déjà posées par le script du <head>)
+    syncToggleButton(a11yLightToggle, prefs.lightMode);
     syncToggleButton(a11yDyslexicToggle, prefs.dyslexic);
     syncToggleButton(a11yContrastToggle, prefs.contrast);
     syncToggleButton(a11yMotionToggle, prefs.reduceMotion);
@@ -138,6 +142,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // Bascules simples : chaque clic inverse l'état actuel (activé <-> désactivé)
+    a11yLightToggle.addEventListener("click", () => {
+      prefs.lightMode = !prefs.lightMode;
+      applyPrefs();
+    });
+
     a11yDyslexicToggle.addEventListener("click", () => {
       prefs.dyslexic = !prefs.dyslexic;
       applyPrefs();
